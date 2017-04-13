@@ -1,9 +1,9 @@
 /**
  * 
  */
-package com.bppleman.cpu.listener;
+package com.bppleman.listener;
 
-import com.bppleman.process.ProcessSimulator;
+import com.bppleman.processmanagement.process.ProcessSimulator;
 
 /**
  * @author BppleMan

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.bppleman.cpu.listener;
+package com.bppleman.listener;
 
 /**
  * @author BppleMan

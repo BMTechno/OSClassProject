@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.bppleman.simulator;
+package com.bppleman.ossimulator;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -9,18 +9,18 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import com.bppleman.cpu.CPUSimulator;
-import com.bppleman.cpu.listener.TableModelListener;
-import com.bppleman.process.controller.ProcessController;
-import com.bppleman.process.schedule.ProcessScheduler;
+import com.bppleman.listener.TableModelListener;
+import com.bppleman.processmanagement.cpu.CPUSimulator;
+import com.bppleman.processmanagement.process.controller.ProcessController;
+import com.bppleman.processmanagement.process.schedule.ProcessScheduler;
 
 /**
  * @author BppleMan
  *
  */
-public class Simulator implements ActionListener
+public class OSSimulator implements ActionListener
 {
-	private SimulatorView simulatorView;
+	private OSSimulatorView oSSimulatorView;
 	private CPUSimulator cpu;
 
 	private ProcessController processController;
@@ -33,7 +33,7 @@ public class Simulator implements ActionListener
 	/**
 	 * 
 	 */
-	public Simulator()
+	public OSSimulator()
 	{
 		initKenel();
 		initView();
@@ -53,9 +53,9 @@ public class Simulator implements ActionListener
 
 	private void initView()
 	{
-		simulatorView = new SimulatorView();
+		oSSimulatorView = new OSSimulatorView();
 		initButton();
-		simulatorView.setVisible(true);
+		oSSimulatorView.setVisible(true);
 	}
 
 	private void initButton()
@@ -64,17 +64,17 @@ public class Simulator implements ActionListener
 		processControllerBtn = new JButton("进程管理器");
 		processControllerBtn.addActionListener(this);
 		processControllerBtn.setPreferredSize(d);
-		simulatorView.add(processControllerBtn);
+		oSSimulatorView.add(processControllerBtn);
 
 		processSchedulerBtn = new JButton("进程调度器");
 		processSchedulerBtn.addActionListener(this);
 		processSchedulerBtn.setPreferredSize(d);
-		simulatorView.add(processSchedulerBtn);
+		oSSimulatorView.add(processSchedulerBtn);
 	}
 
 	public static void main(String[] args)
 	{
-		new Simulator();
+		new OSSimulator();
 	}
 
 	/*

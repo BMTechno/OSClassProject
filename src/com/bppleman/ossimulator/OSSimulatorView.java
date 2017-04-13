@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.bppleman.simulator;
+package com.bppleman.ossimulator;
 
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -12,7 +12,7 @@ import javax.swing.JFrame;
  * @author BppleMan
  *
  */
-public class SimulatorView extends JFrame
+public class OSSimulatorView extends JFrame
 {
 	private Toolkit tk = Toolkit.getDefaultToolkit();
 	public double screenWidth;
@@ -21,7 +21,7 @@ public class SimulatorView extends JFrame
 	/**
 	 * 
 	 */
-	public SimulatorView()
+	public OSSimulatorView()
 	{
 		screenWidth = tk.getScreenSize().getWidth();
 		screenHeight = tk.getScreenSize().getHeight();
