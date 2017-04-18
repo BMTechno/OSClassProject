@@ -51,10 +51,14 @@ public class ProcessTable extends JTable
 	{
 		DefaultTableCellRenderer rowRenderer = new DefaultTableCellRenderer();
 		rowRenderer.setBackground(new Color(245, 245, 245, 255));
-		DefaultTableCellRenderer stateRenderer = new DefaultTableCellRenderer();
-		stateRenderer.setBackground(new Color(239, 174, 77, 255));
+		DefaultTableCellRenderer finishRenderer = new DefaultTableCellRenderer();
+		finishRenderer.setBackground(new Color(239, 174, 77, 255));
+		DefaultTableCellRenderer blockRenderer = new DefaultTableCellRenderer();
+		blockRenderer.setBackground(new Color(227, 121, 104, 255));
 		if (getValueAt(row, column).equals(STATE.FINISH))
-			return stateRenderer;
+			return finishRenderer;
+		if (getValueAt(row, column).equals(STATE.BLOCK))
+			return blockRenderer;
 		if (row % 2 != 0)
 			return rowRenderer;
 		return super.getCellRenderer(row, column);

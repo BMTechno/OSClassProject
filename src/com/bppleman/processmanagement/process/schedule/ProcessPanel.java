@@ -141,12 +141,19 @@ public class ProcessPanel extends JPanel implements ActionListener
 			return;
 		String str = needExecutionTimesText.getText();
 		long times = Long.valueOf(str);
-		long mem = 0;
+		str = needExecutionMemoryText.getText();
+		long mem = Long.valueOf(str);
 		process.setProperty(times, mem, cpu.getTime());
 		tableModelListener.newRowValue(process);
-		process.setReady();
-		processScheduler.readyQueue.add(process);
-		process.setInQueue(true);
+		process.setBlock();
+		try
+		{
+			processScheduler.blockQueue.put(process);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 		requestMemoryBtn.setEnabled(false);
 	}
 

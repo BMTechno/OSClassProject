@@ -3,11 +3,12 @@
  */
 package com.bppleman.processmanagement.process.schedule;
 
-import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.bppleman.listener.TableModelListener;
 import com.bppleman.processmanagement.cpu.CPUSimulator;
 import com.bppleman.processmanagement.process.ProcessSimulator;
+import com.zzl.MemoryManager;
 
 /**
  * @author BppleMan
@@ -16,17 +17,21 @@ import com.bppleman.processmanagement.process.ProcessSimulator;
 public class ProcessScheduler extends Thread
 {
 	private ProcessSchedulerView processSchedulerView;
-	public Vector<ProcessSimulator> readyQueue;
-	public Vector<ProcessSimulator> blockQueue;
+	public LinkedBlockingQueue<ProcessSimulator> readyQueue;
+	public LinkedBlockingQueue<ProcessSimulator> blockQueue;
 	private TableModelListener tableModelListener;
 	private CPUSimulator cpu;
+	private MemoryManager memoryManager;
 	private volatile boolean isRun = false;
+
+	private Thread requestMemoryThread;
 
 	/**
 	 * 
 	 */
-	public ProcessScheduler(TableModelListener tableModelListener)
+	public ProcessScheduler(MemoryManager memoryManager, TableModelListener tableModelListener)
 	{
+		this.memoryManager = memoryManager;
 		this.tableModelListener = tableModelListener;
 		try
 		{
@@ -37,13 +42,53 @@ public class ProcessScheduler extends Thread
 			e.printStackTrace();
 		}
 		initQueue();
+		initThread();
 		initView();
+	}
+
+	public void initThread()
+	{
+		requestMemoryThread = new Thread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				while (true)
+				{
+					if (!blockQueue.isEmpty())
+					{
+						while (!blockQueue.isEmpty())
+						{
+							ProcessSimulator processSimulator = blockQueue.peek();
+							if (memoryManager.requestMem(processSimulator) == true)
+							{
+								try
+								{
+									readyQueue.put(processSimulator);
+									processSimulator.setReady();
+									processSimulator.setInQueue(true);
+									blockQueue.remove(processSimulator);
+								}
+								catch (InterruptedException e)
+								{
+									e.printStackTrace();
+								}
+
+							}
+						}
+					}
+				}
+
+			}
+		});
+		requestMemoryThread.start();
 	}
 
 	public void initQueue()
 	{
-		readyQueue = new Vector<>();
-		blockQueue = new Vector<>();
+		readyQueue = new LinkedBlockingQueue<>();
+		blockQueue = new LinkedBlockingQueue<>();
 	}
 
 	public void initView()
@@ -88,15 +133,6 @@ public class ProcessScheduler extends Thread
 	{
 		while (isRun)
 		{
-			// try
-			// {
-			// sleep(cpu.getClockFrequency() / 1000);
-			// }
-			// catch (InterruptedException e1)
-			// {
-			// // TODO 自动生成的 catch 块
-			// e1.printStackTrace();
-			// }
 			if (cpu.isCPUFree())
 			{
 				if (readyQueue.isEmpty())
@@ -112,13 +148,17 @@ public class ProcessScheduler extends Thread
 				for (ProcessSimulator p : readyQueue)
 				{
 					if (p != process)
+					{
 						p.setPriority(p.getPriority() + 1);
+						tableModelListener.rowValueChanged(p);
+					}
 				}
 				cpu.requestRun(process, readyQueue);
 				/*
 				 * 每完成一个时间片优先权－3
 				 */
-				process.setPriority(process.getPriority() - 8);
+				process.setPriority(process.getPriority() - 10);
+				tableModelListener.rowValueChanged(process);
 			}
 		}
 	}
@@ -128,17 +168,20 @@ public class ProcessScheduler extends Thread
 	 */
 	public ProcessSimulator getMaxPriority()
 	{
-		int max = 1 << 31;
-		ProcessSimulator result = null;
-		for (ProcessSimulator processSimulator : readyQueue)
+		synchronized (blockQueue)
 		{
-			if (processSimulator.getPriority() > max)
+			int max = 1 << 31;
+			ProcessSimulator result = null;
+			for (ProcessSimulator processSimulator : readyQueue)
 			{
-				max = processSimulator.getPriority();
-				result = processSimulator;
+				if (processSimulator.getPriority() > max)
+				{
+					max = processSimulator.getPriority();
+					result = processSimulator;
+				}
 			}
+			return result;
 		}
-		return result;
 	}
 
 	/*
@@ -146,26 +189,29 @@ public class ProcessScheduler extends Thread
 	 */
 	public void calcuPriority()
 	{
-		ProcessSimulator p1 = readyQueue.get(0);
-		long minTotalTimes = p1.getNeedExecutionTimes();
-		ProcessSimulator p2 = readyQueue.get(0);
-		long minNeedTimes = p2.getNeedExecutionTimes() - p2.getHadExecutionTimes();
-		for (ProcessSimulator process : readyQueue)
+		synchronized (blockQueue)
 		{
-			// 短进程优先权＋1
-			if (process.getNeedExecutionTimes() < minTotalTimes)
+			ProcessSimulator p1 = readyQueue.peek();
+			long minTotalTimes = p1.getNeedExecutionTimes();
+			ProcessSimulator p2 = readyQueue.peek();
+			long minNeedTimes = p2.getNeedExecutionTimes() - p2.getHadExecutionTimes();
+			for (ProcessSimulator process : readyQueue)
 			{
-				minTotalTimes = process.getNeedExecutionTimes();
-				p1 = process;
+				// 短进程优先权＋1
+				if (process.getNeedExecutionTimes() < minTotalTimes)
+				{
+					minTotalTimes = process.getNeedExecutionTimes();
+					p1 = process;
+				}
+				// 最快结束进程优先权＋1
+				if (process.getNeedExecutionTimes() - process.getHadExecutionTimes() < minNeedTimes)
+				{
+					minNeedTimes = process.getNeedExecutionTimes() - process.getHadExecutionTimes();
+					p2 = process;
+				}
 			}
-			// 最快结束进程优先权＋1
-			if (process.getNeedExecutionTimes() - process.getHadExecutionTimes() < minNeedTimes)
-			{
-				minNeedTimes = process.getNeedExecutionTimes() - process.getHadExecutionTimes();
-				p2 = process;
-			}
+			p1.setPriority(p1.getPriority() + 1);
+			p2.setPriority(p2.getPriority() + 1);
 		}
-		p1.setPriority(p1.getPriority() + 1);
-		p2.setPriority(p2.getPriority() + 1);
 	}
 }
