@@ -63,9 +63,9 @@ public class MemoryManager extends Thread
 					memVector.add(memNode);
 				}
 				bindVector.add(new BindNode(process, memVector.get(i)));
-				memVector.get(i).name = process.getName();
-				memVector.get(i).size = process.getNeedMemories();
-				memVector.get(i).flag = true;
+				memVector.get(i).setName(process.getName()); 
+				memVector.get(i).setSize(process.getNeedMemories());
+				memVector.get(i).setFlag(true);
 				flag = true;
 				break;
 			}
@@ -76,7 +76,6 @@ public class MemoryManager extends Thread
 		}
 		return flag;
 	}
-//jnopjkljhiopuio
 	// 循环首次适应算法
 	private boolean NF(ProcessSimulator process)
 	{

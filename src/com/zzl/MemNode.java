@@ -3,10 +3,10 @@ package com.zzl;
 
 
 public class MemNode {
-	String name;//进程名
+	private String name;//进程名
 	private long begin;//內存存放的起始位置
-	long size;//内存资源大小
-	boolean flag;//是否空闲
+	private long size;//内存资源大小
+	private boolean flag;//是否空闲
 
 	public MemNode(String name, long begin, long size, boolean flag) {
 		super();
