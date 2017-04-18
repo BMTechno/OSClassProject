@@ -2,7 +2,7 @@ package com.bppleman.processmanagement.cpu;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.bppleman.listener.TableModelListener;
 import com.bppleman.processmanagement.process.ProcessSimulator;
@@ -153,7 +153,7 @@ public class CPUSimulator
 	 * @param blockingQueue
 	 *            阻塞队列
 	 */
-	public void requestRun(ProcessSimulator processSimulator, Vector<ProcessSimulator> readyQueue)
+	public void requestRun(ProcessSimulator processSimulator, LinkedBlockingQueue<ProcessSimulator> readyQueue)
 	{
 		// 此时CPU将不空闲
 		isCPUFree = false;
@@ -178,7 +178,6 @@ public class CPUSimulator
 			}
 			catch (InterruptedException e)
 			{
-				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 			}
 			count++;
