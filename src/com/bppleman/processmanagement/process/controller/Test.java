@@ -14,6 +14,8 @@ public class Test
 	 */
 	public Test()
 	{
-		System.out.println("hello world");
+		System.out.println("fsdafasfsdafds");
+		System.out.println("fsdafasfsdafds");
+		System.out.println("fsdafasfsdafds");
 	}
 }
