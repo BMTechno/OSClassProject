@@ -8,6 +8,7 @@ import java.util.Vector;
 import com.bppleman.listener.TableModelListener;
 import com.bppleman.processmanagement.cpu.CPUSimulator;
 import com.bppleman.processmanagement.process.ProcessSimulator;
+import com.zzl.MemoryManager;
 
 /**
  * @author BppleMan
@@ -20,13 +21,17 @@ public class ProcessScheduler extends Thread
 	public Vector<ProcessSimulator> blockQueue;
 	private TableModelListener tableModelListener;
 	private CPUSimulator cpu;
+	private MemoryManager memoryManager;
 	private volatile boolean isRun = false;
+
+	private Thread requestMemoryThread;
 
 	/**
 	 * 
 	 */
-	public ProcessScheduler(TableModelListener tableModelListener)
+	public ProcessScheduler(MemoryManager memoryManager, TableModelListener tableModelListener)
 	{
+		this.memoryManager = memoryManager;
 		this.tableModelListener = tableModelListener;
 		try
 		{
@@ -37,7 +42,44 @@ public class ProcessScheduler extends Thread
 			e.printStackTrace();
 		}
 		initQueue();
+		initThread();
 		initView();
+	}
+
+	public void initThread()
+	{
+		requestMemoryThread = new Thread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				while (true)
+				{
+					if (!blockQueue.isEmpty())
+					{
+						synchronized (blockQueue)
+						{
+							int n = blockQueue.size();
+							for (int i = 0; i < n; i++)
+							{
+								ProcessSimulator processSimulator = blockQueue.get(i);
+								System.out.println(processSimulator);
+								if (memoryManager.requestMem(processSimulator) == true)
+								{
+									System.out.println(processSimulator.getName() + "申请到内存");
+									readyQueue.addElement(processSimulator);
+									processSimulator.setInQueue(true);
+									blockQueue.remove(processSimulator);
+								}
+							}
+						}
+					}
+				}
+
+			}
+		});
+		requestMemoryThread.start();
 	}
 
 	public void initQueue()

@@ -13,6 +13,8 @@ import com.bppleman.listener.TableModelListener;
 import com.bppleman.processmanagement.cpu.CPUSimulator;
 import com.bppleman.processmanagement.process.controller.ProcessController;
 import com.bppleman.processmanagement.process.schedule.ProcessScheduler;
+import com.zzl.MemoryManager;
+import com.zzl.MemoryManager.ManagerMode;
 
 /**
  * @author BppleMan
@@ -22,6 +24,7 @@ public class OSSimulator implements ActionListener
 {
 	private OSSimulatorView oSSimulatorView;
 	private CPUSimulator cpu;
+	private MemoryManager memoryManager;
 
 	private ProcessController processController;
 	private ProcessScheduler processScheduler;
@@ -44,9 +47,10 @@ public class OSSimulator implements ActionListener
 		CPUSimulator.initCPUSimulator(1000, 100);
 		cpu = CPUSimulator.getInstance();
 		cpu.startTimerTask();
+		memoryManager = new MemoryManager(ManagerMode.FF);
 		processController = new ProcessController();
 		tableModelListener = processController.getTableModelListener();
-		processScheduler = new ProcessScheduler(tableModelListener);
+		processScheduler = new ProcessScheduler(memoryManager, tableModelListener);
 		processScheduler.start();
 		cpu.addTableModelListener(tableModelListener);
 	}

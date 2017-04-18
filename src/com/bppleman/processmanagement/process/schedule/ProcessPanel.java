@@ -145,8 +145,11 @@ public class ProcessPanel extends JPanel implements ActionListener
 		process.setProperty(times, mem, cpu.getTime());
 		tableModelListener.newRowValue(process);
 		process.setReady();
-		processScheduler.readyQueue.add(process);
-		process.setInQueue(true);
+		synchronized (processScheduler.blockQueue)
+		{
+			processScheduler.blockQueue.add(process);
+		}
+		// process.setInQueue(true);
 		requestMemoryBtn.setEnabled(false);
 	}
 
