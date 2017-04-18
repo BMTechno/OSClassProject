@@ -15,7 +15,7 @@ public class MemNode {
 		this.size = size;
 		this.flag = flag;
 	}
-
+//aaa
 	public String getName() {
 		return name;
 	}

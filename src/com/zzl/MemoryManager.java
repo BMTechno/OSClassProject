@@ -17,7 +17,7 @@ public class MemoryManager extends Thread
 
 
 	// 內存空间大小
-	private long totalMem = 100000;
+	private long totalMem = 1000;
 	ManagerMode managerMode;
 	int count = 0;
 
@@ -43,7 +43,6 @@ public class MemoryManager extends Thread
 			case BF:
 				return BF(process);
 		}
-
 		return false;
 	}
 
@@ -55,6 +54,8 @@ public class MemoryManager extends Thread
 		{
 			if (memVector.get(i).isFlag() == false && process.getNeedMemories() <= memVector.get(i).getSize())
 			{
+				System.out.println(memVector.get(i).getSize());
+				System.out.println(process.getNeedMemories());
 				long size = memVector.get(i).getSize() - process.getNeedMemories();
 				long begin = memVector.get(i).getBegin() + process.getNeedMemories();
 				if (size > 0)
@@ -94,8 +95,8 @@ public class MemoryManager extends Thread
 				{
 					long begin = memVector.get(i).getBegin() + process.getNeedMemories();
 					MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
-					memVector.insertElementAt(memNode, i);
-					memVector.get(i + 1).setSize(memVector.get(i + 1).getSize() - process.getNeedMemories());
+					memVector.insertElementAt(memNode, i+1);
+					memVector.get(i).setSize(memVector.get(i).getSize() - process.getNeedMemories());
 				}
 				bindVector.add(new BindNode(process, memVector.get(i)));
 				flag = true;
@@ -118,8 +119,8 @@ public class MemoryManager extends Thread
 						{
 							long begin = memVector.get(j).getBegin() + process.getNeedMemories();
 							MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
-							memVector.insertElementAt(memNode, j);
-							memVector.get(j + 1).setSize(memVector.get(j + 1).getSize() - process.getNeedMemories());
+							memVector.insertElementAt(memNode, j+1);
+							memVector.get(j).setSize(memVector.get(j).getSize() - process.getNeedMemories());
 						}
 						bindVector.add(new BindNode(process, memVector.get(j)));
 						flag = true;
