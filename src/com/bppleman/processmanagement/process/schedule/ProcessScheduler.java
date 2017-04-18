@@ -58,26 +58,23 @@ public class ProcessScheduler extends Thread
 				{
 					if (!blockQueue.isEmpty())
 					{
-						synchronized (blockQueue)
+						while (!blockQueue.isEmpty())
 						{
-							while (!blockQueue.isEmpty())
+							ProcessSimulator processSimulator = blockQueue.peek();
+							if (memoryManager.requestMem(processSimulator) == true)
 							{
-								ProcessSimulator processSimulator = blockQueue.peek();
-								if (memoryManager.requestMem(processSimulator) == true)
+								try
 								{
-									try
-									{
-										readyQueue.put(processSimulator);
-										processSimulator.setReady();
-										processSimulator.setInQueue(true);
-										blockQueue.remove(processSimulator);
-									}
-									catch (InterruptedException e)
-									{
-										e.printStackTrace();
-									}
-
+									readyQueue.put(processSimulator);
+									processSimulator.setReady();
+									processSimulator.setInQueue(true);
+									blockQueue.remove(processSimulator);
 								}
+								catch (InterruptedException e)
+								{
+									e.printStackTrace();
+								}
+
 							}
 						}
 					}
@@ -213,8 +210,8 @@ public class ProcessScheduler extends Thread
 					p2 = process;
 				}
 			}
-			p1.setPriority(p1.getPriority() + 5);
-			p2.setPriority(p2.getPriority() + 5);
+			p1.setPriority(p1.getPriority() + 1);
+			p2.setPriority(p2.getPriority() + 1);
 		}
 	}
 }

@@ -10,14 +10,14 @@ public class MemoryManager extends Thread
 	MemVector<MemNode> memVector;
 	Vector<BindNode> bindVector;
 	FreeVector<FreeNode> freeVector;
+
 	public enum ManagerMode
 	{
 		FF, NF, BF, WF
 	}
 
-
 	// 內存空间大小
-	private long totalMem = 1000;
+	private long totalMem = 100000;
 	ManagerMode managerMode;
 	int count = 0;
 
@@ -29,7 +29,7 @@ public class MemoryManager extends Thread
 		FreeNode freeNode = new FreeNode(0, totalMem);
 		memVector = new MemVector<>(memNode);
 		freeVector = new FreeVector<>(freeNode);
-		bindVector=new Vector<>();
+		bindVector = new Vector<>();
 	}
 
 	public boolean requestMem(ProcessSimulator process)
@@ -54,17 +54,15 @@ public class MemoryManager extends Thread
 		{
 			if (memVector.get(i).isFlag() == false && process.getNeedMemories() <= memVector.get(i).getSize())
 			{
-				System.out.println(memVector.get(i).getSize());
-				System.out.println(process.getNeedMemories());
 				long size = memVector.get(i).getSize() - process.getNeedMemories();
 				long begin = memVector.get(i).getBegin() + process.getNeedMemories();
 				if (size > 0)
 				{
 					MemNode memNode = new MemNode("", begin, size, false);
-					memVector.insertElementAt(memNode, i+1);
+					memVector.insertElementAt(memNode, i + 1);
 				}
 				bindVector.add(new BindNode(process, memVector.get(i)));
-				memVector.get(i).setName(process.getName()); 
+				memVector.get(i).setName(process.getName());
 				memVector.get(i).setSize(process.getNeedMemories());
 				memVector.get(i).setFlag(true);
 				flag = true;
@@ -77,6 +75,7 @@ public class MemoryManager extends Thread
 		}
 		return flag;
 	}
+
 	// 循环首次适应算法
 	private boolean NF(ProcessSimulator process)
 	{
@@ -95,7 +94,7 @@ public class MemoryManager extends Thread
 				{
 					long begin = memVector.get(i).getBegin() + process.getNeedMemories();
 					MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
-					memVector.insertElementAt(memNode, i+1);
+					memVector.insertElementAt(memNode, i + 1);
 					memVector.get(i).setSize(memVector.get(i).getSize() - process.getNeedMemories());
 				}
 				bindVector.add(new BindNode(process, memVector.get(i)));
@@ -119,7 +118,7 @@ public class MemoryManager extends Thread
 						{
 							long begin = memVector.get(j).getBegin() + process.getNeedMemories();
 							MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
-							memVector.insertElementAt(memNode, j+1);
+							memVector.insertElementAt(memNode, j + 1);
 							memVector.get(j).setSize(memVector.get(j).getSize() - process.getNeedMemories());
 						}
 						bindVector.add(new BindNode(process, memVector.get(j)));
@@ -153,7 +152,7 @@ public class MemoryManager extends Thread
 					// 查找与空闲块对应的内存块
 					if (memVector.get(j).getBegin() == freeVector.get(i).getBegin())
 					{
-						memVector.get(j).setName(process.getName()); 
+						memVector.get(j).setName(process.getName());
 						memVector.get(j).setFlag(true);
 						freeVector.remove(i);
 						if (memVector.get(j).getSize() > process.getNeedMemories())
@@ -193,20 +192,25 @@ public class MemoryManager extends Thread
 		}
 		return flag;
 	}
-@Override
-public void run() {
-	// TODO 自动生成的方法存根
-	super.run();
-	while(true){
-		for(int i=0;i<bindVector.size();i++)
+
+	@Override
+	public void run()
+	{
+		// TODO 自动生成的方法存根
+		super.run();
+		while (true)
 		{
-			if(bindVector.get(i).getProcess().getState()==STATE.FINISH){
-				
+			for (int i = 0; i < bindVector.size(); i++)
+			{
+				if (bindVector.get(i).getProcess().getState() == STATE.FINISH)
+				{
+
+				}
 			}
 		}
+
 	}
-	
-}
+
 	// 回收内存
 	private boolean Freemem(ProcessSimulator process)
 	{
@@ -362,7 +366,7 @@ public void run() {
 						else
 						{
 							memVector.get(i).setName("");
-							memVector.get(i).setFlag(false); 
+							memVector.get(i).setFlag(false);
 						}
 					}
 					flag = true;
