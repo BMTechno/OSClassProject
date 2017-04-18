@@ -64,7 +64,6 @@ public class ProcessScheduler extends Thread
 							for (int i = 0; i < n; i++)
 							{
 								ProcessSimulator processSimulator = blockQueue.get(i);
-								System.out.println(processSimulator);
 								if (memoryManager.requestMem(processSimulator) == true)
 								{
 									System.out.println(processSimulator.getName() + "申请到内存");

@@ -38,5 +38,5 @@ public class FreeNode
 		return "FreeNode [begin=" + begin + ", size=" + size + "]";
 	}
 
-	// push测试
+	
 }

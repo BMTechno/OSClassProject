@@ -1,22 +1,20 @@
 package com.zzl;
 
+import java.util.Vector;
+
 import com.bppleman.processmanagement.process.ProcessSimulator;
 import com.bppleman.processmanagement.process.ProcessSimulator.STATE;
 
-public class MemoryManager
+public class MemoryManager extends Thread
 {
 	MemVector<MemNode> memVector;
+	Vector<BindNode> bindVector;
 	FreeVector<FreeNode> freeVector;
-
 	public enum ManagerMode
 	{
 		FF, NF, BF, WF
 	}
 
-	public enum algm
-	{
-		EXECUTION, READY, BLOCK, FINISH
-	}
 
 	// 內存空间大小
 	private long totalMem = 100000;
@@ -31,6 +29,7 @@ public class MemoryManager
 		FreeNode freeNode = new FreeNode(0, totalMem);
 		memVector = new MemVector<>(memNode);
 		freeVector = new FreeVector<>(freeNode);
+		bindVector=new Vector<>();
 	}
 
 	public boolean requestMem(ProcessSimulator process)
@@ -60,9 +59,10 @@ public class MemoryManager
 				long begin = memVector.get(i).getBegin() + process.getNeedMemories();
 				if (size > 0)
 				{
-					MemNode memNode = new MemNode("", begin, size, true);
+					MemNode memNode = new MemNode("", begin, size, false);
 					memVector.add(memNode);
 				}
+				bindVector.add(new BindNode(process, memVector.get(i)));
 				memVector.get(i).name = process.getName();
 				memVector.get(i).size = process.getNeedMemories();
 				memVector.get(i).flag = true;
@@ -76,7 +76,7 @@ public class MemoryManager
 		}
 		return flag;
 	}
-
+//jnopjkljhiopuio
 	// 循环首次适应算法
 	private boolean NF(ProcessSimulator process)
 	{
@@ -94,10 +94,11 @@ public class MemoryManager
 				else
 				{
 					long begin = memVector.get(i).getBegin() + process.getNeedMemories();
-					MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), true);
+					MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
 					memVector.insertElementAt(memNode, i);
 					memVector.get(i + 1).size = memVector.get(i + 1).size - process.getNeedMemories();
 				}
+				bindVector.add(new BindNode(process, memVector.get(i)));
 				flag = true;
 				count = i + 1;
 				break;
@@ -117,10 +118,11 @@ public class MemoryManager
 						else
 						{
 							long begin = memVector.get(j).getBegin() + process.getNeedMemories();
-							MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), true);
+							MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
 							memVector.insertElementAt(memNode, j);
 							memVector.get(j + 1).size = memVector.get(j + 1).size - process.getNeedMemories();
 						}
+						bindVector.add(new BindNode(process, memVector.get(j)));
 						flag = true;
 						count = j + 1;
 						break;
@@ -191,7 +193,20 @@ public class MemoryManager
 		}
 		return flag;
 	}
-
+@Override
+public void run() {
+	// TODO 自动生成的方法存根
+	super.run();
+	while(true){
+		for(int i=0;i<bindVector.size();i++)
+		{
+			if(bindVector.get(i).getProcess().getState()==STATE.FINISH){
+				
+			}
+		}
+	}
+	
+}
 	// 回收内存
 	private boolean Freemem(ProcessSimulator process)
 	{
