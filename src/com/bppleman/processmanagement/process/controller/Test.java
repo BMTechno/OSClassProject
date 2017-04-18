@@ -9,5 +9,11 @@ package com.bppleman.processmanagement.process.controller;
  */
 public class Test
 {
-
+	/**
+	 * 
+	 */
+	public Test()
+	{
+		System.out.println("hello world");
+	}
 }
