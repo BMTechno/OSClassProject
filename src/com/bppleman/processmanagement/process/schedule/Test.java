@@ -17,6 +17,5 @@ public class Test
 	public Test()
 	{
 		LongLong ll = new LongLong();
-		System.out.println(ll.name);
 	}
 }
