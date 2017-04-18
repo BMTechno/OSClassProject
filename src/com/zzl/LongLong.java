@@ -9,13 +9,10 @@ package com.zzl;
  */
 public class LongLong
 {
-	public String name;
-
 	/**
 	* 
 	*/
 	public LongLong()
 	{
-		name = "hello world";
 	}
 }
