@@ -60,7 +60,7 @@ public class MemoryManager extends Thread
 				if (size > 0)
 				{
 					MemNode memNode = new MemNode("", begin, size, false);
-					memVector.add(memNode);
+					memVector.insertElementAt(memNode, i+1);
 				}
 				bindVector.add(new BindNode(process, memVector.get(i)));
 				memVector.get(i).setName(process.getName()); 
@@ -87,15 +87,15 @@ public class MemoryManager extends Thread
 			{
 				if (memVector.get(i).getSize() == process.getNeedMemories())
 				{
-					memVector.get(i).name = process.getName();
-					memVector.get(i).flag = true;
+					memVector.get(i).setName(process.getName());
+					memVector.get(i).setFlag(true);
 				}
 				else
 				{
 					long begin = memVector.get(i).getBegin() + process.getNeedMemories();
 					MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
 					memVector.insertElementAt(memNode, i);
-					memVector.get(i + 1).size = memVector.get(i + 1).size - process.getNeedMemories();
+					memVector.get(i + 1).setSize(memVector.get(i + 1).getSize() - process.getNeedMemories());
 				}
 				bindVector.add(new BindNode(process, memVector.get(i)));
 				flag = true;
@@ -111,15 +111,15 @@ public class MemoryManager extends Thread
 					{
 						if (memVector.get(j).getSize() == process.getNeedMemories())
 						{
-							memVector.get(j).name = process.getName();
-							memVector.get(j).flag = true;
+							memVector.get(j).setName(process.getName());
+							memVector.get(j).setFlag(true);
 						}
 						else
 						{
 							long begin = memVector.get(j).getBegin() + process.getNeedMemories();
 							MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
 							memVector.insertElementAt(memNode, j);
-							memVector.get(j + 1).size = memVector.get(j + 1).size - process.getNeedMemories();
+							memVector.get(j + 1).setSize(memVector.get(j + 1).getSize() - process.getNeedMemories());
 						}
 						bindVector.add(new BindNode(process, memVector.get(j)));
 						flag = true;
@@ -152,8 +152,8 @@ public class MemoryManager extends Thread
 					// 查找与空闲块对应的内存块
 					if (memVector.get(j).getBegin() == freeVector.get(i).getBegin())
 					{
-						memVector.get(j).name = process.getName();
-						memVector.get(j).flag = true;
+						memVector.get(j).setName(process.getName()); 
+						memVector.get(j).setFlag(true);
 						freeVector.remove(i);
 						if (memVector.get(j).getSize() > process.getNeedMemories())
 						{
@@ -262,7 +262,7 @@ public void run() {
 							// 合并内存表上下空闲分区
 							memVector.remove(i);
 							memVector.remove(i);
-							memVector.get(i - 1).size = size;
+							memVector.get(i - 1).setSize(size);
 						}
 						// 合并上空闲分区
 						else if (memVector.get(i - 1).isFlag() == false && memVector.get(i + 1).isFlag() == true)
@@ -293,7 +293,7 @@ public void run() {
 								}
 							}
 							memVector.remove(i);
-							memVector.get(i - 1).size = size;
+							memVector.get(i - 1).setSize(size);
 						}
 						// 合并下空闲分区
 						else if (memVector.get(i - 1).isFlag() == true && memVector.get(i + 1).isFlag() == false)
@@ -311,15 +311,15 @@ public void run() {
 								}
 							}
 							memVector.remove(i + 1);
-							memVector.get(i).size = size;
-							memVector.get(i).name = "";
-							memVector.get(i).flag = false;
+							memVector.get(i).setSize(size);
+							memVector.get(i).setName("");
+							memVector.get(i).setFlag(false);
 						}
 						// 上下分区不空闲
 						else
 						{
-							memVector.get(i).name = "";
-							memVector.get(i).flag = false;
+							memVector.get(i).setName(" ");
+							memVector.get(i).setFlag(false);
 						}
 					}
 					// 第一块
@@ -327,21 +327,21 @@ public void run() {
 					{
 						if (memVector.get(i + 1).isFlag() == false)
 						{
-							size = memVector.get(i + 1).size;
+							size = memVector.get(i + 1).getSize();
 							memVector.remove(i + 1);
-							memVector.get(i).size = memVector.get(i).size + size;
-							memVector.get(i).name = "";
-							memVector.get(i).flag = false;
+							memVector.get(i).setSize(memVector.get(i).getSize() + size);
+							memVector.get(i).setName("");
+							memVector.get(i).setFlag(false);
 						}
 						else if (memVector.get(i + 1).isFlag() == true)
 						{
-							memVector.get(i).name = "";
-							memVector.get(i).flag = false;
+							memVector.get(i).setName("");
+							memVector.get(i).setFlag(false);
 						}
 						else
 						{
-							memVector.get(i).name = "";
-							memVector.get(i).flag = false;
+							memVector.get(i).setName("");
+							memVector.get(i).setFlag(false);
 						}
 					}
 					// 最后一块
@@ -349,19 +349,19 @@ public void run() {
 					{
 						if (memVector.get(i - 1).isFlag() == false)
 						{
-							size = memVector.get(i).size;
+							size = memVector.get(i).getSize();
 							memVector.remove(i);
-							memVector.get(i).size = memVector.get(i).size + size;
+							memVector.get(i).setSize(memVector.get(i).getSize() + size);
 						}
 						else if (memVector.get(i - 1).isFlag() == true)
 						{
-							memVector.get(i).name = "";
-							memVector.get(i).flag = false;
+							memVector.get(i).setName("");
+							memVector.get(i).setFlag(false);
 						}
 						else
 						{
-							memVector.get(i).name = "";
-							memVector.get(i).flag = false;
+							memVector.get(i).setName("");
+							memVector.get(i).setFlag(false); 
 						}
 					}
 					flag = true;
