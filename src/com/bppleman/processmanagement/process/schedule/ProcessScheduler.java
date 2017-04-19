@@ -65,10 +65,8 @@ public class ProcessScheduler extends Thread
 								ProcessSimulator processSimulator = blockQueue.peek();
 								// System.out.println(processSimulator.getName()
 								// + "正在申请");
-								// if
-								// (memoryManager.requestMem(processSimulator)
-								// ==
-								// true)
+								 if
+								 (memoryManager.requestMem(processSimulator)==true)
 								{
 									try
 									{
