@@ -67,6 +67,18 @@ public class ProcessTable extends JTable
 	/*
 	 * （非 Javadoc）
 	 * 
+	 * @see javax.swing.JTable#isCellSelected(int, int)
+	 */
+	@Override
+	public boolean isCellSelected(int row, int column)
+	{
+		// TODO 自动生成的方法存根
+		return false;
+	}
+
+	/*
+	 * （非 Javadoc）
+	 * 
 	 * @see javax.swing.JTable#isCellEditable(int, int)
 	 */
 	@Override

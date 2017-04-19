@@ -114,7 +114,7 @@ public class CPUSimulator
 				TIME++;
 			}
 		};
-		timer.schedule(timerTask, 0, clockFrequency / 1000);
+		timer.schedule(timerTask, 0, timeSlice);
 	}
 
 	/**
@@ -172,14 +172,19 @@ public class CPUSimulator
 				return;
 			}
 			tableModelListener.rowValueChanged(processSimulator);
-			try
+			int n = clockFrequency;
+			while (n > 0)
 			{
-				Thread.currentThread().sleep(clockFrequency / 1000);
+				n--;
 			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+			// try
+			// {
+			// Thread.currentThread().sleep(0, 1);
+			// }
+			// catch (InterruptedException e)
+			// {
+			// e.printStackTrace();
+			// }
 			count++;
 		}
 		processSimulator.setReady();

@@ -34,7 +34,8 @@ public class MyTableModel extends DefaultTableModel
 			rowData[2] = process.getNeedExecutionTimes();
 			rowData[3] = process.getHadExecutionTimes();
 			rowData[4] = process.getPriority();
-			rowData[5] = process.getState();
+			rowData[5] = process.getNeedMemories();
+			rowData[6] = process.getState();
 			addRow(rowData);
 		}
 	}
@@ -48,6 +49,7 @@ public class MyTableModel extends DefaultTableModel
 			Object needexetime = process.getNeedExecutionTimes();
 			Object hadexetime = process.getHadExecutionTimes();
 			Object priority = process.getPriority();
+			Object needmem = process.getNeedMemories();
 			Object state = process.getState();
 			int row = 0;
 			Vector<Object> vector = getDataVector();
@@ -65,7 +67,8 @@ public class MyTableModel extends DefaultTableModel
 			setValueAt(needexetime, row, findColumn(columnNames[2]));
 			setValueAt(hadexetime, row, findColumn(columnNames[3]));
 			setValueAt(priority, row, findColumn(columnNames[4]));
-			setValueAt(state, row, findColumn(columnNames[5]));
+			setValueAt(needmem, row, findColumn(columnNames[5]));
+			setValueAt(state, row, findColumn(columnNames[6]));
 		}
 	}
 

@@ -44,7 +44,10 @@ public class OSSimulator implements ActionListener
 
 	private void initKenel()
 	{
-		CPUSimulator.initCPUSimulator(1000, 100);
+		/*
+		 * 参数1:CPU主频 单位：HZ 参数2:CPU时间片大小 单位：ms
+		 */
+		CPUSimulator.initCPUSimulator(1000000, 1);
 		cpu = CPUSimulator.getInstance();
 		cpu.startTimerTask();
 		memoryManager = new MemoryManager(ManagerMode.FF);
