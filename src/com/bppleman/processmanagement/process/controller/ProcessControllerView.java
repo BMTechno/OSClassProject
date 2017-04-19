@@ -25,8 +25,10 @@ public class ProcessControllerView extends JFrame
 		super(name);
 		screenWidth = (int) tk.getScreenSize().getWidth();
 		screenHeight = (int) tk.getScreenSize().getHeight();
-		int w = 800;
-		int h = 800;
+		// int w = 800;
+		// int h = 800;
+		int w = 600;
+		int h = 600;
 		setBounds((screenWidth - w) / 2 - w / 2, (screenHeight - h) / 2, w, h);
 	}
 

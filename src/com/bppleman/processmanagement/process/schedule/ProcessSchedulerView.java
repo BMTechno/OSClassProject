@@ -51,8 +51,10 @@ public class ProcessSchedulerView extends JFrame implements ActionListener
 		super(name);
 		screenWidth = (int) tk.getScreenSize().getWidth();
 		screenHeight = (int) tk.getScreenSize().getHeight();
-		int w = 925;
-		int h = 800;
+		// int w = 925;
+		// int h = 800;
+		int w = 725;
+		int h = 600;
 		setBounds((screenWidth - w) / 2 + w / 2, (screenHeight - h) / 2, w, h);
 		setMinimumSize(new Dimension(w, h));
 
