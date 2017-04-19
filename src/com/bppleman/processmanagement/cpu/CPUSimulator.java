@@ -156,30 +156,34 @@ public class CPUSimulator
 	 */
 	public void requestRun(ProcessSimulator processSimulator, LinkedBlockingQueue<ProcessSimulator> readyQueue)
 	{
-		// 此时CPU将不空闲
-		isCPUFree = false;
-		// 计数器用于中断一个时间片
-		count = 0;
-		processSimulator.setExecution();
-		while (count < timeSlice)
+		synchronized (this)
 		{
-			processSimulator.hadExecutionTimes++;
-			if (processSimulator.hadExecutionTimes == processSimulator.needExecutionTimes)
+			// 此时CPU将不空闲
+			isCPUFree = false;
+			// 计数器用于中断一个时间片
+			count = 0;
+			processSimulator.setExecution();
+			while (count < timeSlice)
 			{
-				processSimulator.setFinish();
-				readyQueue.remove(processSimulator);
+				processSimulator.hadExecutionTimes++;
+				if (processSimulator.hadExecutionTimes == processSimulator.needExecutionTimes)
+				{
+					processSimulator.setFinish();
+					readyQueue.remove(processSimulator);
+					tableModelListener.rowValueChanged(processSimulator);
+					isCPUFree = true;
+					return;
+				}
+				long n = 0;
+				while (n < clockFrequency)
+					n++;
 				tableModelListener.rowValueChanged(processSimulator);
-				isCPUFree = true;
-				return;
+				// count++;
 			}
-			long n = 0;
-			while (n < clockFrequency)
-				n++;
-			tableModelListener.rowValueChanged(processSimulator);
-			// count++;
+			processSimulator.setReady();
+			isCPUFree = true;
+			this.notify();
 		}
-		processSimulator.setReady();
-		isCPUFree = true;
 	}
 
 	public void addTableModelListener(TableModelListener tableModelListener)
