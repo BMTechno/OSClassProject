@@ -18,7 +18,7 @@ public class ProcessController implements TableModelListener
 	private JScrollPane scrollPane;
 	private ProcessTable processTable;
 	private MyTableModel tableModel;
-	private String[] columnNames = { "进程名称", "到达时刻", "需执行次数", "已执行次数", "进程优先权", "进程状态" };
+	private String[] columnNames = { "进程名称", "到达时刻", "需执行次数", "已执行次数", "进程优先权", "需申请内存", "进程状态" };
 
 	/**
 	 * 

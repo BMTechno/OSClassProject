@@ -4,12 +4,9 @@
 package com.bppleman.processmanagement.process.schedule;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -51,12 +48,11 @@ public class ProcessSchedulerView extends JFrame implements ActionListener
 		super(name);
 		screenWidth = (int) tk.getScreenSize().getWidth();
 		screenHeight = (int) tk.getScreenSize().getHeight();
-		// int w = 925;
+		int w = 925;
 		// int h = 800;
-		int w = 725;
 		int h = 600;
 		setBounds((screenWidth - w) / 2 + w / 2, (screenHeight - h) / 2, w, h);
-		setMinimumSize(new Dimension(w, h));
+		// setMinimumSize(new Dimension(w, h));
 
 		this.tableModelListener = tableModelListener;
 		this.processScheduler = processScheduler;
@@ -97,45 +93,6 @@ public class ProcessSchedulerView extends JFrame implements ActionListener
 		 */
 		prcPanelContainer = new JPanel();
 		prcPanelContainer.setLayout(new MyFlowLayout());
-		prcPanelContainer.addComponentListener(new ComponentListener()
-		{
-			private Dimension defaultDimension;
-			int count = 0;
-
-			@Override
-			public void componentShown(ComponentEvent e)
-			{
-			}
-
-			@Override
-			public void componentResized(ComponentEvent e)
-			{
-				if (count == 0)
-				{
-					defaultDimension = e.getComponent().getSize();
-					count++;
-				}
-				// e.getComponent().setPreferredSize(new Dimension((int)
-				// defaultDimension.getWidth(),
-				// (int) e.getComponent().getPreferredSize().getHeight()));
-				// System.out.println(e.getComponent().getSize());
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent e)
-			{
-				// TODO 自动生成的方法存根
-
-			}
-
-			@Override
-			public void componentHidden(ComponentEvent e)
-			{
-				// TODO 自动生成的方法存根
-
-			}
-		});
-
 		scrollPane = new JScrollPane(prcPanelContainer);
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 	}
@@ -191,7 +148,7 @@ public class ProcessSchedulerView extends JFrame implements ActionListener
 		if (btn == randomButton)
 		{
 			Random random = new Random();
-			long bound = 9999;
+			long bound = 100000;
 			for (int i = 0; i < 10; i++)
 			{
 				ProcessPanel panel = new ProcessPanel(tableModelListener, processScheduler);
