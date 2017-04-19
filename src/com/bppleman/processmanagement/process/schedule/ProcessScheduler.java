@@ -62,8 +62,7 @@ public class ProcessScheduler extends Thread
 						{
 							ProcessSimulator processSimulator = blockQueue.peek();
 
-							// if (memoryManager.requestMem(processSimulator) ==
-							// true)
+							if (memoryManager.requestMem(processSimulator) == true)
 							{
 								try
 								{
