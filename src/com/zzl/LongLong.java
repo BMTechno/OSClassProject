@@ -14,5 +14,6 @@ public class LongLong
 	*/
 	public LongLong()
 	{
+		// hjklhfjsadf
 	}
 }
