@@ -20,6 +20,7 @@ public class MemoryManager extends Thread
 	private long totalMem = 100000;
 	ManagerMode managerMode;
 	int count = 0;
+	Object o;
 
 	public MemoryManager(ManagerMode managerMode)
 	{
@@ -45,13 +46,14 @@ public class MemoryManager extends Thread
 		}
 		return false;
 	}
-
 	// 首次适应算法
 	private boolean FF(ProcessSimulator process)
 	{
 		boolean flag = false;
+		
 		for (int i = 0; i < memVector.size(); i++)
 		{
+			System.out.println(memVector.size() + ":" + i);
 			if (memVector.get(i).isFlag() == false && process.getNeedMemories() <= memVector.get(i).getSize())
 			{
 				long size = memVector.get(i).getSize() - process.getNeedMemories();
@@ -73,6 +75,8 @@ public class MemoryManager extends Thread
 				flag = false;
 			}
 		}
+		
+		
 		return flag;
 	}
 
@@ -207,10 +211,13 @@ public class MemoryManager extends Thread
 		super.run();
 		while (true)
 		{
+			
 			for (int k = 0; k < bindVector.size(); k++)
 			{
+				
 				if (bindVector.get(k).getProcess().getState() == STATE.FINISH)
 				{
+					
 					for (int i = 0; i < memVector.size(); i++)
 					{
 						if (memVector.get(i).getBegin()==bindVector.get(k).getMemNode().getBegin())
@@ -282,7 +289,7 @@ public class MemoryManager extends Thread
 									memVector.get(i).setFlag(false);
 								}
 							}
-							else
+							else 
 							{
 								memVector.get(i).setName("");
 								memVector.get(i).setFlag(false);
@@ -292,7 +299,8 @@ public class MemoryManager extends Thread
 					}
 					bindVector.remove(k);
 					k--;
-				}
+					}
+				
 			}
 		}
 
