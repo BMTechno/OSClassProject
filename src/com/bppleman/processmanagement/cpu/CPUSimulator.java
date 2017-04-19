@@ -112,6 +112,7 @@ public class CPUSimulator
 			public void run()
 			{
 				TIME++;
+				count++;
 			}
 		};
 		timer.schedule(timerTask, 0, timeSlice);
@@ -171,21 +172,11 @@ public class CPUSimulator
 				isCPUFree = true;
 				return;
 			}
+			long n = 0;
+			while (n < clockFrequency)
+				n++;
 			tableModelListener.rowValueChanged(processSimulator);
-			int n = clockFrequency;
-			while (n > 0)
-			{
-				n--;
-			}
-			// try
-			// {
-			// Thread.currentThread().sleep(0, 1);
-			// }
-			// catch (InterruptedException e)
-			// {
-			// e.printStackTrace();
-			// }
-			count++;
+			// count++;
 		}
 		processSimulator.setReady();
 		isCPUFree = true;
