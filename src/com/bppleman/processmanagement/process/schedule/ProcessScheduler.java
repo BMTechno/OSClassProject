@@ -56,26 +56,44 @@ public class ProcessScheduler extends Thread
 			{
 				while (true)
 				{
-					if (!blockQueue.isEmpty())
+					synchronized (blockQueue)
 					{
-						while (!blockQueue.isEmpty())
+						if (!blockQueue.isEmpty())
 						{
-							ProcessSimulator processSimulator = blockQueue.peek();
-
-							if (memoryManager.requestMem(processSimulator) == true)
+							while (!blockQueue.isEmpty())
 							{
-								try
+								ProcessSimulator processSimulator = blockQueue.peek();
+								// System.out.println(processSimulator.getName()
+								// + "正在申请");
+								// if
+								// (memoryManager.requestMem(processSimulator)
+								// ==
+								// true)
 								{
-									readyQueue.put(processSimulator);
-									processSimulator.setReady();
-									processSimulator.setInQueue(true);
-									blockQueue.remove(processSimulator);
-								}
-								catch (InterruptedException e)
-								{
-									e.printStackTrace();
-								}
+									try
+									{
+										readyQueue.put(processSimulator);
+										processSimulator.setReady();
+										processSimulator.setInQueue(true);
+										blockQueue.remove(processSimulator);
+									}
+									catch (InterruptedException e)
+									{
+										e.printStackTrace();
+									}
 
+								}
+							}
+						}
+						else
+						{
+							try
+							{
+								blockQueue.wait();
+							}
+							catch (InterruptedException e)
+							{
+								e.printStackTrace();
 							}
 						}
 					}
@@ -134,32 +152,46 @@ public class ProcessScheduler extends Thread
 	{
 		while (isRun)
 		{
-			if (cpu.isCPUFree())
+			synchronized (cpu)
 			{
-				if (readyQueue.isEmpty())
-					continue;
-				calcuPriority();
-				/*
-				 * 从就绪队列中取出优先级最高的进程，向CPU申请执行
-				 */
-				ProcessSimulator process = getMaxPriority();
-				/*
-				 * 每等待一个时间片优先权＋1
-				 */
-				for (ProcessSimulator p : readyQueue)
+				if (cpu.isCPUFree())
 				{
-					if (p != process)
+					if (readyQueue.isEmpty())
+						continue;
+					calcuPriority();
+					/*
+					 * 从就绪队列中取出优先级最高的进程，向CPU申请执行
+					 */
+					ProcessSimulator process = getMaxPriority();
+					/*
+					 * 每等待一个时间片优先权＋1
+					 */
+					for (ProcessSimulator p : readyQueue)
 					{
-						p.setPriority(p.getPriority() + 1);
-						tableModelListener.rowValueChanged(p);
+						if (p != process)
+						{
+							p.setPriority(p.getPriority() + 1);
+							tableModelListener.rowValueChanged(p);
+						}
+					}
+					cpu.requestRun(process, readyQueue);
+					/*
+					 * 每完成一个时间片优先权－3
+					 */
+					process.setPriority(process.getPriority() - 10);
+					tableModelListener.rowValueChanged(process);
+				}
+				else
+				{
+					try
+					{
+						cpu.wait();
+					}
+					catch (InterruptedException e)
+					{
+						e.printStackTrace();
 					}
 				}
-				cpu.requestRun(process, readyQueue);
-				/*
-				 * 每完成一个时间片优先权－3
-				 */
-				process.setPriority(process.getPriority() - 10);
-				tableModelListener.rowValueChanged(process);
 			}
 		}
 	}
