@@ -53,6 +53,7 @@ public class OSSimulator implements ActionListener
 		processScheduler = new ProcessScheduler(memoryManager, tableModelListener);
 		processScheduler.start();
 		cpu.addTableModelListener(tableModelListener);
+		memoryManager.start();
 	}
 
 	private void initView()

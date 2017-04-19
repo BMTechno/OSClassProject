@@ -61,10 +61,10 @@ public class MemoryManager extends Thread
 					MemNode memNode = new MemNode("", begin, size, false);
 					memVector.insertElementAt(memNode, i + 1);
 				}
-				bindVector.add(new BindNode(process, memVector.get(i)));
 				memVector.get(i).setName(process.getName());
 				memVector.get(i).setSize(process.getNeedMemories());
 				memVector.get(i).setFlag(true);
+				bindVector.add(new BindNode(process, memVector.get(i)));
 				flag = true;
 				break;
 			}
@@ -93,9 +93,12 @@ public class MemoryManager extends Thread
 				else
 				{
 					long begin = memVector.get(i).getBegin() + process.getNeedMemories();
-					MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
+					long size=memVector.get(i).getSize()-process.getNeedMemories();
+					MemNode memNode = new MemNode("", begin, size, false);
 					memVector.insertElementAt(memNode, i + 1);
-					memVector.get(i).setSize(memVector.get(i).getSize() - process.getNeedMemories());
+					memVector.get(i).setSize(process.getNeedMemories());
+					memVector.get(i).setName(process.getName());
+					memVector.get(i).setFlag(true);
 				}
 				bindVector.add(new BindNode(process, memVector.get(i)));
 				flag = true;
@@ -117,9 +120,12 @@ public class MemoryManager extends Thread
 						else
 						{
 							long begin = memVector.get(j).getBegin() + process.getNeedMemories();
-							MemNode memNode = new MemNode(process.getName(), begin, process.getNeedMemories(), false);
+							long size=memVector.get(i).getSize()-process.getNeedMemories();
+							MemNode memNode = new MemNode("", begin, size, false);
 							memVector.insertElementAt(memNode, j + 1);
-							memVector.get(j).setSize(memVector.get(j).getSize() - process.getNeedMemories());
+							memVector.get(j).setSize(process.getNeedMemories());
+							memVector.get(i).setName(process.getName());
+							memVector.get(i).setFlag(true);
 						}
 						bindVector.add(new BindNode(process, memVector.get(j)));
 						flag = true;
@@ -197,14 +203,95 @@ public class MemoryManager extends Thread
 	public void run()
 	{
 		// TODO 自动生成的方法存根
+		long size;
 		super.run();
 		while (true)
 		{
-			for (int i = 0; i < bindVector.size(); i++)
+			for (int k = 0; k < bindVector.size(); k++)
 			{
-				if (bindVector.get(i).getProcess().getState() == STATE.FINISH)
+				if (bindVector.get(k).getProcess().getState() == STATE.FINISH)
 				{
-
+					for (int i = 0; i < memVector.size(); i++)
+					{
+						if (memVector.get(i).getBegin()==bindVector.get(k).getMemNode().getBegin())
+						{
+							if (i != 0 && i != memVector.size() - 1)
+							{
+								// 上下分区是否空闲
+								if (memVector.get(i - 1).isFlag() == false && memVector.get(i + 1).isFlag() == false)
+								{
+									size = memVector.get(i - 1).getSize() + memVector.get(i).getSize()
+											+ memVector.get(i + 1).getSize();
+									// 合并内存表上下空闲分区
+									memVector.remove(i+1);
+									memVector.remove(i);
+									memVector.get(i - 1).setSize(size);
+								}
+								// 合并上空闲分区
+								else if (memVector.get(i - 1).isFlag() == false && memVector.get(i + 1).isFlag() == true)
+								{
+									size = memVector.get(i - 1).getSize() + memVector.get(i).getSize();
+									memVector.remove(i);
+									memVector.get(i - 1).setSize(size);
+								}
+								// 合并下空闲分区
+								else if (memVector.get(i - 1).isFlag() == true && memVector.get(i + 1).isFlag() == false)
+								{
+									size = memVector.get(i).getSize() + memVector.get(i + 1).getSize();
+									memVector.remove(i + 1);
+									memVector.get(i).setSize(size);
+									memVector.get(i).setName("");
+									memVector.get(i).setFlag(false);
+								}
+								// 上下分区不空闲
+								else
+								{
+									memVector.get(i).setName(" ");
+									memVector.get(i).setFlag(false);
+								}
+							}
+							// 第一块
+							else if (i == 0 && i!=memVector.size()-1)
+							{
+								if (memVector.get(i + 1).isFlag() == false)
+								{
+									size = memVector.get(i + 1).getSize()+memVector.get(i).getSize();
+									memVector.remove(i + 1);
+									memVector.get(i).setSize(size);
+									memVector.get(i).setName("");
+									memVector.get(i).setFlag(false);
+								}
+								else
+								{
+									memVector.get(i).setName("");
+									memVector.get(i).setFlag(false);
+								}
+							}
+							// 最后一块
+							else if (i == memVector.size() - 1 && i!=0)
+							{
+								if (memVector.get(i - 1).isFlag() == false)
+								{
+									size = memVector.get(i).getSize()+memVector.get(i - 1).getSize();
+									memVector.remove(i);
+									memVector.get(i-1).setSize(size);
+								}
+								else
+								{
+									memVector.get(i).setName("");
+									memVector.get(i).setFlag(false);
+								}
+							}
+							else
+							{
+								memVector.get(i).setName("");
+								memVector.get(i).setFlag(false);
+							}
+						}
+						break;
+					}
+					bindVector.remove(k);
+					k--;
 				}
 			}
 		}
