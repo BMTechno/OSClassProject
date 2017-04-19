@@ -56,17 +56,16 @@ public class ProcessScheduler extends Thread
 			{
 				while (true)
 				{
-					synchronized (blockQueue)
+
+					while (!blockQueue.isEmpty())
 					{
-						if (!blockQueue.isEmpty())
+						synchronized (blockQueue)
 						{
-							while (!blockQueue.isEmpty())
+							if (!blockQueue.isEmpty())
 							{
 								ProcessSimulator processSimulator = blockQueue.peek();
-								// System.out.println(processSimulator.getName()
-								// + "正在申请");
-								 if
-								 (memoryManager.requestMem(processSimulator)==true)
+								System.out.println(processSimulator.getName() + "正在申请");
+								if (memoryManager.requestMem(processSimulator) == true)
 								{
 									try
 									{
@@ -79,27 +78,26 @@ public class ProcessScheduler extends Thread
 									{
 										e.printStackTrace();
 									}
-
 								}
 							}
-						}
-						else
-						{
-							try
+							else
 							{
-								blockQueue.wait();
-							}
-							catch (InterruptedException e)
-							{
-								e.printStackTrace();
+								try
+								{
+									blockQueue.wait();
+								}
+								catch (InterruptedException e)
+								{
+									e.printStackTrace();
+								}
 							}
 						}
 					}
 				}
-
 			}
 		});
 		requestMemoryThread.start();
+
 	}
 
 	public void initQueue()
