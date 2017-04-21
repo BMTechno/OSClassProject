@@ -50,7 +50,7 @@ public class OSSimulator implements ActionListener
 		CPUSimulator.initCPUSimulator(1000, 10);
 		cpu = CPUSimulator.getInstance();
 		cpu.startTimerTask();
-		memoryManager = new MemoryManager(ManagerMode.FF);
+		memoryManager = new MemoryManager(ManagerMode.WF);
 		processController = new ProcessController();
 		tableModelListener = processController.getTableModelListener();
 		processScheduler = new ProcessScheduler(memoryManager, tableModelListener);
