@@ -1,24 +1,34 @@
 package com.zzl;
 
+import java.awt.BorderLayout;
 import java.util.Vector;
+
+import javax.swing.JFrame;
 
 import com.bppleman.processmanagement.process.ProcessSimulator;
 import com.bppleman.processmanagement.process.ProcessSimulator.STATE;
 
 public class MemoryManager extends Thread
 {
-	MemVector<MemNode> memVector;
-	Vector<BindNode> bindVector;
-	FreeVector<FreeNode> freeVector;
+	private MemVector<MemNode> memVector;
+	private Vector<BindNode> bindVector;
+	private FreeVector<FreeNode> freeVector;
+	private JFrame frame;
+	private MemPanel memPanel;
+
+	public static void main(String[] args)
+	{
+		new MemoryManager(ManagerMode.FF);
+	}
 
 	public enum ManagerMode
 	{
-		FF, NF, BF, WF
+		FF, BF, WF
 	}
 
 	// 內存空间大小
-	private long totalMem = 1000000;
-	ManagerMode managerMode;
+	private static long totalMem = 1000000;
+	private ManagerMode managerMode;
 	int count = 0;
 
 	public MemoryManager(ManagerMode managerMode)
@@ -30,6 +40,20 @@ public class MemoryManager extends Thread
 		memVector = new MemVector<>(memNode);
 		freeVector = new FreeVector<>(freeNode);
 		bindVector = new Vector<>();
+		initFrame();
+	}
+
+	public void initFrame()
+	{
+		frame = new JFrame("内存管理");
+		memPanel = new MemPanel(memVector);
+		frame.getContentPane().add(memPanel, BorderLayout.CENTER);
+		frame.setBounds(100, 100, 500, 500);
+	}
+
+	public void setMemoryManagerViewVisible(boolean b)
+	{
+		frame.setVisible(b);
 	}
 
 	public boolean requestMem(ProcessSimulator process)
@@ -177,43 +201,40 @@ public class MemoryManager extends Thread
 		synchronized (memVector)
 		{
 			System.out.println("WF get block");
-			for (i = 0; i < freeVector.size(); i++)
+			System.out.println(freeVector.get(0).getSize());
+			if (freeVector.get(0).getSize() > process.getNeedMemories())
 			{
-				if (freeVector.get(i).getSize() > process.getNeedMemories())
+				for (j = 0; j < memVector.size(); j++)
 				{
-					for (j = 0; j < memVector.size(); j++)
+
+					if (memVector.get(j).getBegin() == freeVector.get(0).getBegin())
 					{
-						System.out.println("a");
-						if (memVector.get(j).getBegin() == freeVector.get(i).getBegin())
+						size = memVector.get(j).getSize() - process.getNeedMemories();
+						begin = memVector.get(j).getBegin() + process.getNeedMemories();
+						memVector.get(j).setName(process.getName());
+						memVector.get(j).setFlag(true);
+						memVector.get(j).setSize(process.getNeedMemories());
+						bindVector.add(new BindNode(process, memVector.get(j)));
+						MemNode memNode = new MemNode("", begin, size, false);
+						memVector.insertElementAt(memNode, j + 1);
+						FreeNode freeNode = new FreeNode(begin, size);
+						for (k = 0; k < freeVector.size(); k++)
 						{
-							size = memVector.get(j).getSize() - process.getNeedMemories();
-							begin = memVector.get(j).getBegin() + process.getNeedMemories();
-							memVector.get(j).setName(process.getName());
-							memVector.get(j).setFlag(true);
-							memVector.get(j).setSize(process.getNeedMemories());
-							MemNode memNode = new MemNode("", begin, size, false);
-							memVector.insertElementAt(memNode, j + 1);
-							bindVector.add(new BindNode(process, memVector.get(j)));
-							FreeNode freeNode = new FreeNode(begin, size);
-							for (k = 0; k < freeVector.size(); k++)
+							if (freeVector.get(k).getSize() < size)
 							{
-								if (freeVector.get(k).getSize() < size)
-								{
-									freeVector.insertElementAt(freeNode, k);
-									break;
-								}
-								if (k == freeVector.size() - 1)
-								{
-									freeVector.add(freeNode);
-									break;
-								}
+								freeVector.insertElementAt(freeNode, k);
+								break;
 							}
-							freeVector.remove(i);
-							flag = true;
-							break;
+							if (k == freeVector.size() - 1)
+							{
+								freeVector.add(freeNode);
+								break;
+							}
 						}
+						freeVector.remove(0);
+						flag = true;
+						break;
 					}
-					break;
 				}
 			}
 		}
@@ -245,11 +266,13 @@ public class MemoryManager extends Thread
 				synchronized (memVector)
 				{
 					System.out.println("run get block");
+					System.out.println(freeVector.get(0).getSize());
 					for (int i = 0; i < memVector.size(); i++)
 					{
 						if (bindVector.get(k).getMemNode().getBegin() == memVector.get(i).getBegin())
 						{
-							System.out.println("b");
+							System.out.println(memVector.get(i).getSize());
+
 							if (i != 0 && i != memVector.size() - 1)
 							{
 								// 上下分区是否空闲
@@ -269,8 +292,7 @@ public class MemoryManager extends Thread
 												freeVector.insertElementAt(freeNode, j);
 												break;
 											}
-											else if (managerMode == ManagerMode.WF
-													&& freeVector.get(j).getSize() < size)
+											if (managerMode == ManagerMode.WF && freeVector.get(j).getSize() < size)
 											{
 												freeVector.insertElementAt(freeNode, j);
 												break;
@@ -285,7 +307,8 @@ public class MemoryManager extends Thread
 										// 删去合并的空闲区
 										for (j = 0; j < freeVector.size(); j++)
 										{
-											if (freeVector.get(j).getBegin() == memVector.get(i - 1).getBegin())
+											if (freeNode != freeVector.get(j)
+													&& freeVector.get(j).getBegin() == memVector.get(i - 1).getBegin())
 											{
 
 												freeVector.remove(j);
@@ -294,7 +317,8 @@ public class MemoryManager extends Thread
 										}
 										for (j = 0; j < freeVector.size(); j++)
 										{
-											if (freeVector.get(j).getBegin() == memVector.get(i + 1).getBegin())
+											if (freeNode != freeVector.get(j)
+													&& freeVector.get(j).getBegin() == memVector.get(i + 1).getBegin())
 											{
 												freeVector.remove(j);
 												break;
@@ -322,8 +346,7 @@ public class MemoryManager extends Thread
 												freeVector.insertElementAt(freeNode, j);
 												break;
 											}
-											else if (managerMode == ManagerMode.WF
-													&& freeVector.get(j).getSize() < size)
+											if (managerMode == ManagerMode.WF && freeVector.get(j).getSize() < size)
 											{
 												freeVector.insertElementAt(freeNode, j);
 												break;
@@ -336,7 +359,8 @@ public class MemoryManager extends Thread
 										}
 										for (j = 0; j < freeVector.size(); j++)
 										{
-											if (freeVector.get(j).getBegin() == memVector.get(i - 1).getBegin())
+											if (freeNode != freeVector.get(j)
+													&& freeVector.get(j).getBegin() == memVector.get(i - 1).getBegin())
 											{
 												freeVector.remove(j);
 												break;
@@ -363,8 +387,7 @@ public class MemoryManager extends Thread
 												freeVector.insertElementAt(freeNode, j);
 												break;
 											}
-											else if (managerMode == ManagerMode.WF
-													&& freeVector.get(j).getSize() < size)
+											if (managerMode == ManagerMode.WF && freeVector.get(j).getSize() < size)
 											{
 												freeVector.insertElementAt(freeNode, j);
 												break;
@@ -377,7 +400,8 @@ public class MemoryManager extends Thread
 										}
 										for (j = 0; j < freeVector.size(); j++)
 										{
-											if (freeVector.get(j).getBegin() == memVector.get(i + 1).getBegin())
+											if (freeNode != freeVector.get(j)
+													&& freeVector.get(j).getBegin() == memVector.get(i + 1).getBegin())
 											{
 
 												freeVector.remove(j);
@@ -407,7 +431,7 @@ public class MemoryManager extends Thread
 												freeVector.insertElementAt(freeNode, j);
 												break;
 											}
-											else if (managerMode == ManagerMode.WF
+											if (managerMode == ManagerMode.WF
 													&& freeVector.get(j).getSize() < memVector.get(i).getSize())
 											{
 												freeVector.insertElementAt(freeNode, j);
@@ -445,8 +469,7 @@ public class MemoryManager extends Thread
 												freeVector.insertElementAt(freeNode, j);
 												break;
 											}
-											else if (managerMode == ManagerMode.WF
-													&& freeVector.get(j).getSize() < size)
+											if (managerMode == ManagerMode.WF && freeVector.get(j).getSize() < size)
 											{
 												freeVector.insertElementAt(freeNode, j);
 												break;
@@ -459,7 +482,8 @@ public class MemoryManager extends Thread
 										}
 										for (j = 0; j < freeVector.size(); j++)
 										{
-											if (freeVector.get(j).getBegin() == memVector.get(i + 1).getBegin())
+											if (freeNode != freeVector.get(j)
+													&& freeVector.get(j).getBegin() == memVector.get(i + 1).getBegin())
 											{
 
 												freeVector.remove(j);
@@ -488,7 +512,7 @@ public class MemoryManager extends Thread
 												freeVector.insertElementAt(freeNode, j);
 												break;
 											}
-											else if (managerMode == ManagerMode.WF
+											if (managerMode == ManagerMode.WF
 													&& freeVector.get(j).getSize() < memVector.get(i).getSize())
 											{
 												freeVector.insertElementAt(freeNode, j);
@@ -524,8 +548,7 @@ public class MemoryManager extends Thread
 												freeVector.insertElementAt(freeNode, j);
 												break;
 											}
-											else if (managerMode == ManagerMode.WF
-													&& freeVector.get(j).getSize() < size)
+											if (managerMode == ManagerMode.WF && freeVector.get(j).getSize() < size)
 											{
 												freeVector.insertElementAt(freeNode, j);
 												break;
@@ -538,7 +561,8 @@ public class MemoryManager extends Thread
 										}
 										for (j = 0; j < freeVector.size(); j++)
 										{
-											if (freeVector.get(j).getBegin() == memVector.get(i - 1).getBegin())
+											if (freeNode != freeVector.get(j)
+													&& freeVector.get(j).getBegin() == memVector.get(i - 1).getBegin())
 											{
 												freeVector.remove(j);
 												break;
@@ -564,7 +588,7 @@ public class MemoryManager extends Thread
 												freeVector.insertElementAt(freeNode, j);
 												break;
 											}
-											else if (managerMode == ManagerMode.WF
+											if (managerMode == ManagerMode.WF
 													&& freeVector.get(j).getSize() < memVector.get(i).getSize())
 											{
 												freeVector.insertElementAt(freeNode, j);
@@ -654,7 +678,7 @@ public class MemoryManager extends Thread
 	 * memVector.size() - 1) { flag = false; } } } return flag; }
 	 */
 
-	public long getTotalMem()
+	public static long getTotalMem()
 	{
 		return totalMem;
 	}
