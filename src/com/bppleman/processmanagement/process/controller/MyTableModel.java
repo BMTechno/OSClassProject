@@ -16,12 +16,13 @@ import com.bppleman.processmanagement.process.ProcessSimulator;
 public class MyTableModel extends DefaultTableModel
 {
 	private String[] columnNames;
+	private ProcessTable processTable;
 
-	public MyTableModel(Object[][] data, String[] columnNames)
+	public MyTableModel(Object[][] data, String[] columnNames, ProcessTable processTable)
 	{
 		super(data, columnNames);
 		this.columnNames = columnNames;
-
+		this.processTable = processTable;
 	}
 
 	public void addRow(ProcessSimulator process)
@@ -38,6 +39,8 @@ public class MyTableModel extends DefaultTableModel
 			rowData[6] = process.getState();
 			addRow(rowData);
 		}
+		processTable.validate();
+		processTable.repaint();
 	}
 
 	public void updateValue(ProcessSimulator process)
@@ -70,6 +73,8 @@ public class MyTableModel extends DefaultTableModel
 			setValueAt(needmem, row, findColumn(columnNames[5]));
 			setValueAt(state, row, findColumn(columnNames[6]));
 		}
+		processTable.validate();
+		processTable.repaint();
 	}
 
 }
