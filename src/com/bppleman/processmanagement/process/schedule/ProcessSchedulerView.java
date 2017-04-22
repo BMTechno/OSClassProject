@@ -149,12 +149,13 @@ public class ProcessSchedulerView extends JFrame implements ActionListener
 		{
 			Random random = new Random();
 			long bound = 100000;
+			long bound1 = 50000;
 			for (int i = 0; i < 10; i++)
 			{
 				ProcessPanel panel = new ProcessPanel(tableModelListener, processScheduler);
 				long exeTimes = nextLong(random, bound);
 				panel.setNeedExecutionTimesText(String.valueOf(exeTimes));
-				long mem = nextLong(random, bound);
+				long mem = nextLong(random, bound1) + 50000;
 				panel.setNeedExecutionMemoryText(String.valueOf(mem));
 				processPanels.add(panel);
 				prcPanelContainer.add(panel);

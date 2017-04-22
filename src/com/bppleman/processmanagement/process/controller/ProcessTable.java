@@ -26,7 +26,7 @@ public class ProcessTable extends JTable
 	public ProcessTable(Object[][] data, String[] columnNames)
 	{
 		super();
-		myTableModel = new MyTableModel(data, columnNames);
+		myTableModel = new MyTableModel(data, columnNames, this);
 		setModel(myTableModel);
 	}
 

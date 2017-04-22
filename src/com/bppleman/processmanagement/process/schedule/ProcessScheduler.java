@@ -60,20 +60,6 @@ public class ProcessScheduler extends Thread
 			{
 				while (true)
 				{
-					synchronized (requestMemoryThread)
-					{
-						if (blockQueue.isEmpty())
-						{
-							try
-							{
-								requestMemoryThread.wait();
-							}
-							catch (InterruptedException e)
-							{
-								e.printStackTrace();
-							}
-						}
-					}
 					while (!blockQueue.isEmpty())
 					{
 						synchronized (blockQueue)
@@ -81,6 +67,7 @@ public class ProcessScheduler extends Thread
 							ProcessSimulator processSimulator = blockQueue.peek();
 							if (processSimulator.getNeedMemories() > memoryManager.getTotalMem())
 							{
+								System.out.println(processSimulator.getNeedExecutionTimes());
 								blockQueue.remove(processSimulator);
 								processSimulator.setCrash();
 								break;
@@ -100,9 +87,30 @@ public class ProcessScheduler extends Thread
 									e.printStackTrace();
 								}
 							}
-							processSimulator.setCrash();
-							blockQueue.remove(processSimulator);
-							break;
+						}
+					}
+					try
+					{
+						Thread.sleep(1);
+					}
+					catch (InterruptedException e1)
+					{
+						// TODO 自动生成的 catch 块
+						e1.printStackTrace();
+					}
+					if (blockQueue.isEmpty())
+					{
+						synchronized (requestMemoryThread)
+						{
+							try
+							{
+								System.out.println("挂起");
+								requestMemoryThread.wait();
+							}
+							catch (InterruptedException e)
+							{
+								e.printStackTrace();
+							}
 						}
 					}
 				}
