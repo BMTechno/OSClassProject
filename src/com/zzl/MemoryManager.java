@@ -2,6 +2,7 @@ package com.zzl;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Vector;
@@ -50,7 +51,7 @@ public class MemoryManager extends Thread implements MouseListener
 		AttributePanel attributePanel = new AttributePanel();
 		frame.getContentPane().add(memPanel, BorderLayout.CENTER);
 		frame.getContentPane().add(attributePanel, BorderLayout.EAST);
-		frame.setBounds(100, 100, 500, 500);
+		frame.setBounds(0, 0, 500, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 	}
 
 	public void setMemoryManagerViewVisible(boolean b)

@@ -42,6 +42,8 @@ public class MemPanel extends JPanel
 				memVector.get(i).setRect(rectangle2d);
 				g2D.setColor(new Color(187, 212, 105));
 				g2D.fill(rectangle2d);
+				g2D.setColor(Color.WHITE);
+				g2D.draw(rectangle2d);
 			}
 			else if (memVector.get(i).isFlag() == true)
 			{
@@ -49,6 +51,7 @@ public class MemPanel extends JPanel
 				memVector.get(i).setRect(rectangle2d);
 				g2D.setColor(new Color(192, 49, 34));
 				g2D.fill(rectangle2d);
+				g2D.setColor(Color.WHITE);
 				g2D.draw(rectangle2d);
 			}
 		}
