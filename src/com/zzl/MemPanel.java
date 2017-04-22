@@ -29,28 +29,27 @@ public class MemPanel extends JPanel
 		this.setPreferredSize(new Dimension(frame.getWidth() * 2 / 3, frame.getHeight()));
 		Graphics2D g2D = (Graphics2D) g;
 		int i;
-		double l;
+		double l, begin;
 
 		for (i = 0; i < memVector.size(); i++)
 		{
 			l = (double) memVector.get(i).getSize() / (double) MemoryManager.getTotalMem();
-
+			begin = (double) memVector.get(i).getBegin() / (double) MemoryManager.getTotalMem();
 			if (memVector.get(i).isFlag() == false)
 			{
 				System.out.println(memVector.size());
-				Rectangle2D rectangle2d = new Rectangle2D.Double(0, memVector.get(i).getBegin(), getWidth(),
-						getHeight() * l);
+				Rectangle2D rectangle2d = new Rectangle2D.Double(0, getHeight() * begin, getWidth(), getHeight() * l);
 				memVector.get(i).setRect(rectangle2d);
 				g2D.setColor(new Color(187, 212, 105));
 				g2D.fill(rectangle2d);
 			}
 			else if (memVector.get(i).isFlag() == true)
 			{
-				Rectangle2D rectangle2d = new Rectangle2D.Double(0, memVector.get(i).getBegin(), getWidth(),
-						getHeight() * l);
+				Rectangle2D rectangle2d = new Rectangle2D.Double(0, getHeight() * begin, getWidth(), getHeight() * l);
 				memVector.get(i).setRect(rectangle2d);
 				g2D.setColor(new Color(192, 49, 34));
 				g2D.fill(rectangle2d);
+				g2D.draw(rectangle2d);
 			}
 		}
 	}
