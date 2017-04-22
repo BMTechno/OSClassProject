@@ -100,9 +100,6 @@ public class ProcessScheduler extends Thread
 									e.printStackTrace();
 								}
 							}
-							processSimulator.setCrash();
-							blockQueue.remove(processSimulator);
-							break;
 						}
 					}
 				}

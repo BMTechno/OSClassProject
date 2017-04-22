@@ -1,6 +1,9 @@
 package com.zzl;
 
 import java.awt.BorderLayout;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -8,18 +11,14 @@ import javax.swing.JFrame;
 import com.bppleman.processmanagement.process.ProcessSimulator;
 import com.bppleman.processmanagement.process.ProcessSimulator.STATE;
 
-public class MemoryManager extends Thread
+public class MemoryManager extends Thread implements MouseListener
 {
 	private MemVector<MemNode> memVector;
 	private Vector<BindNode> bindVector;
 	private FreeVector<FreeNode> freeVector;
 	private JFrame frame;
 	private MemPanel memPanel;
-
-	public static void main(String[] args)
-	{
-		new MemoryManager(ManagerMode.FF);
-	}
+	private AttributePanel attributePanel;
 
 	public enum ManagerMode
 	{
@@ -46,8 +45,11 @@ public class MemoryManager extends Thread
 	public void initFrame()
 	{
 		frame = new JFrame("内存管理");
-		memPanel = new MemPanel(memVector);
+		memPanel = new MemPanel(memVector, frame);
+		memPanel.addMouseListener(this);
+		AttributePanel attributePanel = new AttributePanel();
 		frame.getContentPane().add(memPanel, BorderLayout.CENTER);
+		frame.getContentPane().add(attributePanel, BorderLayout.EAST);
 		frame.setBounds(100, 100, 500, 500);
 	}
 
@@ -91,6 +93,7 @@ public class MemoryManager extends Thread
 					memVector.get(i).setName(process.getName());
 					memVector.get(i).setSize(process.getNeedMemories());
 					memVector.get(i).setFlag(true);
+					memPanel.repaint();
 					bindVector.add(new BindNode(process, memVector.get(i)));
 					flag = true;
 
@@ -180,6 +183,7 @@ public class MemoryManager extends Thread
 									break;
 								}
 							}
+							memPanel.repaint();
 							freeVector.remove(i + 1);
 							flag = true;
 							break;
@@ -200,8 +204,6 @@ public class MemoryManager extends Thread
 		long size, begin;
 		synchronized (memVector)
 		{
-			System.out.println("WF get block");
-			System.out.println(freeVector.get(0).getSize());
 			if (freeVector.get(0).getSize() > process.getNeedMemories())
 			{
 				for (j = 0; j < memVector.size(); j++)
@@ -217,6 +219,7 @@ public class MemoryManager extends Thread
 						bindVector.add(new BindNode(process, memVector.get(j)));
 						MemNode memNode = new MemNode("", begin, size, false);
 						memVector.insertElementAt(memNode, j + 1);
+						memPanel.repaint();
 						FreeNode freeNode = new FreeNode(begin, size);
 						for (k = 0; k < freeVector.size(); k++)
 						{
@@ -231,6 +234,7 @@ public class MemoryManager extends Thread
 								break;
 							}
 						}
+						memPanel.repaint();
 						freeVector.remove(0);
 						flag = true;
 						break;
@@ -265,14 +269,10 @@ public class MemoryManager extends Thread
 			{
 				synchronized (memVector)
 				{
-					System.out.println("run get block");
-					System.out.println(freeVector.get(0).getSize());
 					for (int i = 0; i < memVector.size(); i++)
 					{
 						if (bindVector.get(k).getMemNode().getBegin() == memVector.get(i).getBegin())
 						{
-							System.out.println(memVector.get(i).getSize());
-
 							if (i != 0 && i != memVector.size() - 1)
 							{
 								// 上下分区是否空闲
@@ -327,7 +327,9 @@ public class MemoryManager extends Thread
 									} // BF空闲链表操作结束
 										// 合并内存表上下空闲分区
 									memVector.remove(i + 1);
+									memPanel.repaint();
 									memVector.remove(i);
+									memPanel.repaint();
 									memVector.get(i - 1).setSize(size);
 								}
 								// 合并上空闲分区
@@ -612,6 +614,7 @@ public class MemoryManager extends Thread
 								memVector.get(i).setName("");
 								memVector.get(i).setFlag(false);
 							}
+							memPanel.repaint();
 							// 进程与对应区间关系结束
 							bindVector.remove(k);
 							k--;
@@ -681,5 +684,49 @@ public class MemoryManager extends Thread
 	public static long getTotalMem()
 	{
 		return totalMem;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e)
+	{
+		// TODO 自动生成的方法存根
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		// TODO 自动生成的方法存根
+		int i;
+		Point p = e.getPoint();
+		for (i = 0; i < memVector.size(); i++)
+		{
+			if (memVector.get(i).getRect().contains(p))
+			{
+				System.out.println(memVector.get(i).getRect().contains(p));
+				attributePanel.setAttribute(memVector.get(i));
+			}
+		}
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		// TODO 自动生成的方法存根
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e)
+	{
+		// TODO 自动生成的方法存根
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e)
+	{
+		// TODO 自动生成的方法存根
+
 	}
 }

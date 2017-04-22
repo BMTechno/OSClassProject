@@ -1,20 +1,24 @@
 package com.zzl;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class MemPanel extends JPanel
 {
 
 	private MemVector<MemNode> memVector;
+	private JFrame frame;
 
-	public MemPanel(MemVector memVector)
+	public MemPanel(MemVector memVector, JFrame frame)
 	{
 		this.memVector = memVector;
+		this.frame = frame;
 	}
 
 	@Override
@@ -22,18 +26,30 @@ public class MemPanel extends JPanel
 	{
 		// TODO 自动生成的方法存根
 		super.paintComponent(g);
+		this.setPreferredSize(new Dimension(frame.getWidth() * 2 / 3, frame.getHeight()));
 		Graphics2D g2D = (Graphics2D) g;
 		int i;
 		double l;
 
 		for (i = 0; i < memVector.size(); i++)
 		{
-			l = memVector.get(i).getSize() / MemoryManager.getTotalMem();
+			l = (double) memVector.get(i).getSize() / (double) MemoryManager.getTotalMem();
+
 			if (memVector.get(i).isFlag() == false)
 			{
-				Rectangle2D rectangle2d = new Rectangle2D.Double(0, 0, getWidth(), getHeight() * l);
+				System.out.println(memVector.size());
+				Rectangle2D rectangle2d = new Rectangle2D.Double(0, memVector.get(i).getBegin(), getWidth(),
+						getHeight() * l);
 				memVector.get(i).setRect(rectangle2d);
 				g2D.setColor(new Color(187, 212, 105));
+				g2D.fill(rectangle2d);
+			}
+			else if (memVector.get(i).isFlag() == true)
+			{
+				Rectangle2D rectangle2d = new Rectangle2D.Double(0, memVector.get(i).getBegin(), getWidth(),
+						getHeight() * l);
+				memVector.get(i).setRect(rectangle2d);
+				g2D.setColor(new Color(192, 49, 34));
 				g2D.fill(rectangle2d);
 			}
 		}
