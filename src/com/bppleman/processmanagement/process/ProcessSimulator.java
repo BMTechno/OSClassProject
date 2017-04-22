@@ -28,7 +28,7 @@ public class ProcessSimulator implements Comparable<ProcessSimulator>
 	 */
 	public enum STATE
 	{
-		EXECUTION, READY, BLOCK, FINISH
+		EXECUTION, READY, BLOCK, FINISH, CRASH
 	}
 
 	/**
@@ -113,6 +113,15 @@ public class ProcessSimulator implements Comparable<ProcessSimulator>
 		this.needExecutionTimes = needExecutionTimes;
 		this.needMemories = needMemories;
 		this.arriveTime = arriveTime;
+	}
+
+	/**
+	 * 设置进程为崩溃状态
+	 */
+	public void setCrash()
+	{
+		this.state = STATE.CRASH;
+		tableModelListener.rowValueChanged(this);
 	}
 
 	/**

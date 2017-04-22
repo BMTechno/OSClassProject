@@ -49,11 +49,7 @@ public class MemoryManager extends Thread
 		memPanel = new MemPanel(memVector);
 		frame.getContentPane().add(memPanel, BorderLayout.CENTER);
 		frame.setBounds(100, 100, 500, 500);
-	}
-
-	public void setMemoryManagerViewVisible(boolean b)
-	{
-		frame.setVisible(b);
+		frame.setVisible(true);
 	}
 
 	public boolean requestMem(ProcessSimulator process)

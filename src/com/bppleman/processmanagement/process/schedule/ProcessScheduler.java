@@ -46,23 +46,42 @@ public class ProcessScheduler extends Thread
 		initView();
 	}
 
+	public Thread getRequestThread()
+	{
+		return requestMemoryThread;
+	}
+
 	public void initThread()
 	{
 		requestMemoryThread = new Thread(new Runnable()
 		{
-
 			@Override
 			public void run()
 			{
 				while (true)
 				{
-
+					synchronized (requestMemoryThread)
+					{
+						if (blockQueue.isEmpty())
+						{
+							try
+							{
+								requestMemoryThread.wait();
+							}
+							catch (InterruptedException e)
+							{
+								e.printStackTrace();
+							}
+						}
+					}
 					while (!blockQueue.isEmpty())
 					{
 						synchronized (blockQueue)
 						{
-							if (!blockQueue.isEmpty())
+							ProcessSimulator processSimulator = blockQueue.peek();
+							if (processSimulator.getNeedMemories() > memoryManager.getTotalMem())
 							{
+<<<<<<< HEAD
 								ProcessSimulator processSimulator = blockQueue.peek();
 
 								if (memoryManager.requestMem(processSimulator) == true)
@@ -79,12 +98,21 @@ public class ProcessScheduler extends Thread
 										e.printStackTrace();
 									}
 								}
+=======
+								System.out.println("to large");
+								processSimulator.setCrash();
+								blockQueue.remove(processSimulator);
+								break;
+>>>>>>> refs/remotes/origin/master
 							}
-							else
+							if (memoryManager.requestMem(processSimulator) == true)
 							{
 								try
 								{
-									blockQueue.wait();
+									readyQueue.put(processSimulator);
+									processSimulator.setReady();
+									processSimulator.setInQueue(true);
+									blockQueue.remove(processSimulator);
 								}
 								catch (InterruptedException e)
 								{

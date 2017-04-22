@@ -30,6 +30,7 @@ public class OSSimulator implements ActionListener
 	private ProcessScheduler processScheduler;
 	private JButton processControllerBtn;
 	private JButton processSchedulerBtn;
+	private JButton memoryManageBtn;
 
 	private TableModelListener tableModelListener;
 
@@ -78,6 +79,11 @@ public class OSSimulator implements ActionListener
 		processSchedulerBtn.addActionListener(this);
 		processSchedulerBtn.setPreferredSize(d);
 		oSSimulatorView.add(processSchedulerBtn);
+
+		memoryManageBtn = new JButton("内存管理器");
+		memoryManageBtn.addActionListener(this);
+		memoryManageBtn.setPreferredSize(d);
+		oSSimulatorView.add(memoryManageBtn);
 	}
 
 	public static void main(String[] args)
@@ -99,5 +105,7 @@ public class OSSimulator implements ActionListener
 			processController.setProcessControllerViewVisible(true);
 		if (btn == processSchedulerBtn)
 			processScheduler.setProcessSchedulerViewVisible(true);
+		if (btn == memoryManageBtn)
+			memoryManager.setMemoryManagerViewVisible(true);
 	}
 }

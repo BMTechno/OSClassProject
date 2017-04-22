@@ -146,6 +146,10 @@ public class ProcessPanel extends JPanel implements ActionListener
 		process.setProperty(times, mem, cpu.getTime());
 		tableModelListener.newRowValue(process);
 		process.setBlock();
+		synchronized (processScheduler.getRequestThread())
+		{
+			processScheduler.getRequestThread().notify();
+		}
 		synchronized (processScheduler.blockQueue)
 		{
 			try
