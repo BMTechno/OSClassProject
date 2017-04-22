@@ -81,30 +81,11 @@ public class ProcessScheduler extends Thread
 							ProcessSimulator processSimulator = blockQueue.peek();
 							if (processSimulator.getNeedMemories() > memoryManager.getTotalMem())
 							{
-<<<<<<< HEAD
-								ProcessSimulator processSimulator = blockQueue.peek();
-
-								if (memoryManager.requestMem(processSimulator) == true)
-								{
-									try
-									{
-										readyQueue.put(processSimulator);
-										processSimulator.setReady();
-										processSimulator.setInQueue(true);
-										blockQueue.remove(processSimulator);
-									}
-									catch (InterruptedException e)
-									{
-										e.printStackTrace();
-									}
-								}
-=======
-								System.out.println("to large");
-								processSimulator.setCrash();
 								blockQueue.remove(processSimulator);
+								processSimulator.setCrash();
 								break;
->>>>>>> refs/remotes/origin/master
 							}
+
 							if (memoryManager.requestMem(processSimulator) == true)
 							{
 								try
@@ -119,6 +100,9 @@ public class ProcessScheduler extends Thread
 									e.printStackTrace();
 								}
 							}
+							processSimulator.setCrash();
+							blockQueue.remove(processSimulator);
+							break;
 						}
 					}
 				}

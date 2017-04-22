@@ -8,6 +8,7 @@ public class MemNode
 	private long begin;// 內存存放的起始位置
 	private long size;// 内存资源大小
 	private boolean flag;// 是否空闲
+	private Rectangle2D rect;
 
 	public MemNode(String name, long begin, long size, boolean flag)
 	{
