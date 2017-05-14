@@ -1,6 +1,7 @@
 package com.zzl;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
@@ -14,8 +15,11 @@ import com.bppleman.processmanagement.process.ProcessSimulator.STATE;
 
 public class MemoryManager extends Thread implements MouseListener
 {
+	// 内存表
 	private MemVector<MemNode> memVector;
+	// 对应关系表
 	private Vector<BindNode> bindVector;
+	// 空闲链表
 	private FreeVector<FreeNode> freeVector;
 	private JFrame frame;
 	private MemPanel memPanel;
@@ -28,6 +32,7 @@ public class MemoryManager extends Thread implements MouseListener
 
 	// 內存空间大小
 	private static long totalMem = 1000000;
+	// 算法标志
 	private ManagerMode managerMode;
 	int count = 0;
 
@@ -37,9 +42,13 @@ public class MemoryManager extends Thread implements MouseListener
 		this.managerMode = managerMode;
 		MemNode memNode = new MemNode("", 0, totalMem, false);
 		FreeNode freeNode = new FreeNode(0, totalMem);
+		// 初始化内存表
 		memVector = new MemVector<>(memNode);
+		// 初始化空闲链表
 		freeVector = new FreeVector<>(freeNode);
+		// 初始化对应关系表
 		bindVector = new Vector<>();
+		// 管理界面初始化
 		initFrame();
 	}
 
@@ -48,10 +57,11 @@ public class MemoryManager extends Thread implements MouseListener
 		frame = new JFrame("内存管理");
 		memPanel = new MemPanel(memVector, frame);
 		memPanel.addMouseListener(this);
-		AttributePanel attributePanel = new AttributePanel();
+		attributePanel = new AttributePanel(frame);
 		frame.getContentPane().add(memPanel, BorderLayout.CENTER);
 		frame.getContentPane().add(attributePanel, BorderLayout.EAST);
 		frame.setBounds(0, 0, 500, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+		frame.setMinimumSize(new Dimension(500, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight()));
 	}
 
 	public void setMemoryManagerViewVisible(boolean b)
@@ -59,6 +69,7 @@ public class MemoryManager extends Thread implements MouseListener
 		frame.setVisible(b);
 	}
 
+	// 响应进程，申请内存
 	public boolean requestMem(ProcessSimulator process)
 	{
 		switch (managerMode)
@@ -78,23 +89,29 @@ public class MemoryManager extends Thread implements MouseListener
 	{
 
 		boolean flag = false;
+		// 同步锁
 		synchronized (memVector)
 		{
 			for (int i = 0; i < memVector.size(); i++)
 			{
+				// 查找首个适合的空闲块
 				if (memVector.get(i).isFlag() == false && process.getNeedMemories() <= memVector.get(i).getSize())
 				{
 					long size = memVector.get(i).getSize() - process.getNeedMemories();
 					long begin = memVector.get(i).getBegin() + process.getNeedMemories();
+					// 分出剩于空闲内存块
 					if (size > 0)
 					{
 						MemNode memNode = new MemNode("", begin, size, false);
 						memVector.insertElementAt(memNode, i + 1);
 					}
+					// 更新内存块信息
 					memVector.get(i).setName(process.getName());
 					memVector.get(i).setSize(process.getNeedMemories());
 					memVector.get(i).setFlag(true);
+					// 刷新界面
 					memPanel.repaint();
+					// 进程与内存块关系记录
 					bindVector.add(new BindNode(process, memVector.get(i)));
 					flag = true;
 
@@ -105,42 +122,6 @@ public class MemoryManager extends Thread implements MouseListener
 		}
 		return flag;
 	}
-
-	// 循环首次适应算法
-	/*
-	 * private boolean NF(ProcessSimulator process) { int t; boolean flag =
-	 * false; synchronized (memVector) { if (memVector.size() - 1 < count) count
-	 * = 0; for (int i = count; i < memVector.size(); i++) { if
-	 * (memVector.get(i).isFlag() == false && memVector.get(i).getSize() >=
-	 * process.getNeedMemories()) { System.out.println("NF get block"); if
-	 * (memVector.get(i).getSize() == process.getNeedMemories()) {
-	 * memVector.get(i).setName(process.getName());
-	 * memVector.get(i).setFlag(true); if (i != memVector.size() - 1) count = i
-	 * + 1; } else { long begin = memVector.get(i).getBegin() +
-	 * process.getNeedMemories(); long size = memVector.get(i).getSize() -
-	 * process.getNeedMemories(); MemNode memNode = new MemNode("", begin, size,
-	 * false); memVector.insertElementAt(memNode, i + 1);
-	 * memVector.get(i).setSize(process.getNeedMemories());
-	 * memVector.get(i).setName(process.getName());
-	 * memVector.get(i).setFlag(true); count = i + 1; } bindVector.add(new
-	 * BindNode(process, memVector.get(i))); flag = true; break; }
-	 * 
-	 * if (i == memVector.size() - 1) { t = count; for (int j = 0; j < t; j++) {
-	 * if (memVector.get(j).isFlag() == false && memVector.get(j).getSize() >=
-	 * process.getNeedMemories()) { System.out.println("NF1 get block"); if
-	 * (memVector.get(j).getSize() == process.getNeedMemories()) {
-	 * memVector.get(j).setName(process.getName());
-	 * memVector.get(j).setFlag(true); if (j != memVector.size() - 1) count = j
-	 * + 1; } else { long begin = memVector.get(j).getBegin() +
-	 * process.getNeedMemories(); long size = memVector.get(i).getSize() -
-	 * process.getNeedMemories(); MemNode memNode = new MemNode("", begin, size,
-	 * false); memVector.insertElementAt(memNode, j + 1);
-	 * memVector.get(j).setSize(process.getNeedMemories());
-	 * memVector.get(i).setName(process.getName());
-	 * memVector.get(i).setFlag(true); count = j + 1; } bindVector.add(new
-	 * BindNode(process, memVector.get(j))); flag = true; break; } } } } }
-	 * return flag; }
-	 */
 
 	// 最佳适应算法
 	private boolean BF(ProcessSimulator process)
@@ -164,13 +145,16 @@ public class MemoryManager extends Thread implements MouseListener
 						{
 							size = memVector.get(j).getSize() - process.getNeedMemories();
 							begin = memVector.get(j).getBegin() + process.getNeedMemories();
+							// 更新内存块信息
 							memVector.get(j).setName(process.getName());
 							memVector.get(j).setFlag(true);
 							memVector.get(j).setSize(process.getNeedMemories());
+							// 记录对应关系
 							bindVector.add(new BindNode(process, memVector.get(j)));
 							MemNode memNode = new MemNode("", begin, size, false);
 							memVector.insertElementAt(memNode, j + 1);
 							FreeNode freeNode = new FreeNode(begin, size);
+							// 将新空闲块加入空闲链表
 							for (k = 0; k < freeVector.size(); k++)
 							{
 								if (freeVector.get(k).getSize() > size)
@@ -184,7 +168,9 @@ public class MemoryManager extends Thread implements MouseListener
 									break;
 								}
 							}
+							// 刷新
 							memPanel.repaint();
+							// 删除非空闲块
 							freeVector.remove(i + 1);
 							flag = true;
 							break;
@@ -201,7 +187,7 @@ public class MemoryManager extends Thread implements MouseListener
 	private boolean WF(ProcessSimulator process)
 	{
 		boolean flag = false;
-		int i, j, k;
+		int j, k;
 		long size, begin;
 		synchronized (memVector)
 		{
@@ -249,7 +235,6 @@ public class MemoryManager extends Thread implements MouseListener
 	@Override
 	public void run()
 	{
-		// TODO 自动生成的方法存根
 
 		super.run();
 		while (true)
@@ -627,60 +612,6 @@ public class MemoryManager extends Thread implements MouseListener
 
 		}
 	}
-	/*
-	 * private boolean Freemem(ProcessSimulator process) { long size; boolean
-	 * flag = false; int j; if (process.getState() == STATE.FINISH) { for (int i
-	 * = 0; i < memVector.size(); i++) { if
-	 * (memVector.get(i).getName().equals(process.getName())) { if (i != 0 && i
-	 * != memVector.size() - 1) { // 上下分区是否空闲 if (memVector.get(i - 1).isFlag()
-	 * == false && memVector.get(i + 1).isFlag() == false) { size =
-	 * memVector.get(i - 1).getSize() + memVector.get(i).getSize() +
-	 * memVector.get(i + 1).getSize(); // 删去空闲链表中空闲分区 if
-	 * (managerMode.equals("NF")) { for (j = 0; j < freeVector.size(); j++) { if
-	 * (memVector.get(i - 1).getBegin() == freeVector.get(j).getBegin()) {
-	 * freeVector.remove(j); break; } } for (j = 0; j < freeVector.size(); j++)
-	 * { if (memVector.get(i + 1).getBegin() == freeVector.get(j).getBegin()) {
-	 * freeVector.remove(j); break; } } // 将新空闲分区加入空闲链表 FreeNode freeNode = new
-	 * FreeNode(memVector.get(i - 1).getBegin(), size); for (j = 0; j <
-	 * freeVector.size(); j++) { if (freeVector.get(j).getSize() > size) {
-	 * freeVector.insertElementAt(freeNode, j); break; } if (j ==
-	 * freeVector.size() - 1) { freeVector.add(freeNode); } } } // 合并内存表上下空闲分区
-	 * memVector.remove(i); memVector.remove(i); memVector.get(i -
-	 * 1).setSize(size); } // 合并上空闲分区 else if (memVector.get(i - 1).isFlag() ==
-	 * false && memVector.get(i + 1).isFlag() == true) { size = memVector.get(i
-	 * - 1).getSize() + memVector.get(i).getSize(); if
-	 * (managerMode.equals("NF")) { for (j = 0; j < freeVector.size(); j++) { if
-	 * (freeVector.get(j).getBegin() == memVector.get(i - 1).getBegin()) {
-	 * freeVector.remove(j); break; } } FreeNode freeNode = new
-	 * FreeNode(memVector.get(i - 1).getBegin(), size); for (j = 0; j <
-	 * freeVector.size(); j++) { if (freeVector.get(j).getSize() > size) {
-	 * freeVector.insertElementAt(freeNode, j); break; } if (j ==
-	 * freeVector.size() - 1) { freeVector.add(freeNode); } } }
-	 * memVector.remove(i); memVector.get(i - 1).setSize(size); } // 合并下空闲分区
-	 * else if (memVector.get(i - 1).isFlag() == true && memVector.get(i +
-	 * 1).isFlag() == false) { size = memVector.get(i).getSize() +
-	 * memVector.get(i + 1).getSize(); if (managerMode.equals("NF")) { for (j =
-	 * 0; j < freeVector.size(); j++) { if (freeVector.get(j).getBegin() ==
-	 * memVector.get(j).getBegin()) { freeVector.get(j).setSize(size); break; }
-	 * } } memVector.remove(i + 1); memVector.get(i).setSize(size);
-	 * memVector.get(i).setName(""); memVector.get(i).setFlag(false); } //
-	 * 上下分区不空闲 else { memVector.get(i).setName(" ");
-	 * memVector.get(i).setFlag(false); } } // 第一块 else if (i == 0) { if
-	 * (memVector.get(i + 1).isFlag() == false) { size = memVector.get(i +
-	 * 1).getSize(); memVector.remove(i + 1);
-	 * memVector.get(i).setSize(memVector.get(i).getSize() + size);
-	 * memVector.get(i).setName(""); memVector.get(i).setFlag(false); } else if
-	 * (memVector.get(i + 1).isFlag() == true) { memVector.get(i).setName("");
-	 * memVector.get(i).setFlag(false); } else { memVector.get(i).setName("");
-	 * memVector.get(i).setFlag(false); } } // 最后一块 else if (i ==
-	 * memVector.size() - 1) { if (memVector.get(i - 1).isFlag() == false) {
-	 * size = memVector.get(i).getSize(); memVector.remove(i);
-	 * memVector.get(i).setSize(memVector.get(i).getSize() + size); } else if
-	 * (memVector.get(i - 1).isFlag() == true) { memVector.get(i).setName("");
-	 * memVector.get(i).setFlag(false); } else { memVector.get(i).setName("");
-	 * memVector.get(i).setFlag(false); } } flag = true; break; } if (i ==
-	 * memVector.size() - 1) { flag = false; } } } return flag; }
-	 */
 
 	public static long getTotalMem()
 	{
@@ -697,15 +628,14 @@ public class MemoryManager extends Thread implements MouseListener
 	@Override
 	public void mousePressed(MouseEvent e)
 	{
-		// TODO 自动生成的方法存根
 		int i;
 		Point p = e.getPoint();
 		for (i = 0; i < memVector.size(); i++)
 		{
 			if (memVector.get(i).getRect().contains(p))
 			{
-				System.out.println(memVector.get(i).getRect().contains(p));
 				attributePanel.setAttribute(memVector.get(i));
+				attributePanel.repaint();
 			}
 		}
 	}
@@ -713,21 +643,18 @@ public class MemoryManager extends Thread implements MouseListener
 	@Override
 	public void mouseReleased(MouseEvent e)
 	{
-		// TODO 自动生成的方法存根
 
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e)
 	{
-		// TODO 自动生成的方法存根
 
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e)
 	{
-		// TODO 自动生成的方法存根
 
 	}
 }

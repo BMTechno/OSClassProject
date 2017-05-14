@@ -11,6 +11,7 @@ public class BindNode
 	private MemNode memNode;
 	private Rectangle2D rect;
 
+	// 建立对应关系
 	public BindNode(ProcessSimulator process, MemNode memNode)
 	{
 		this.process = process;

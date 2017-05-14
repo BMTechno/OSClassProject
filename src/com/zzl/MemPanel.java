@@ -26,6 +26,7 @@ public class MemPanel extends JPanel
 	{
 		// TODO 自动生成的方法存根
 		super.paintComponent(g);
+		// 设置面板大小随frame变化
 		this.setPreferredSize(new Dimension(frame.getWidth() * 2 / 3, frame.getHeight()));
 		Graphics2D g2D = (Graphics2D) g;
 		int i;
@@ -33,8 +34,10 @@ public class MemPanel extends JPanel
 
 		for (i = 0; i < memVector.size(); i++)
 		{
+			// 得出面板与内存大小对应比例关系
 			l = (double) memVector.get(i).getSize() / (double) MemoryManager.getTotalMem();
 			begin = (double) memVector.get(i).getBegin() / (double) MemoryManager.getTotalMem();
+			// 加入红、绿色块代表内存使用情况
 			if (memVector.get(i).isFlag() == false)
 			{
 				System.out.println(memVector.size());
