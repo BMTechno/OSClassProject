@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 import com.bppleman.listener.TableModelListener;
+import com.bppleman.memory.MemorySelector;
 import com.bppleman.processmanagement.cpu.CPUSimulator;
 import com.bppleman.processmanagement.process.controller.ProcessController;
 import com.bppleman.processmanagement.process.schedule.ProcessScheduler;
@@ -25,12 +26,14 @@ public class OSSimulator implements ActionListener
 	private OSSimulatorView oSSimulatorView;
 	private CPUSimulator cpu;
 	private MemoryManager memoryManager;
+	private MemorySelector memorySelector;
 
 	private ProcessController processController;
 	private ProcessScheduler processScheduler;
 	private JButton processControllerBtn;
 	private JButton processSchedulerBtn;
 	private JButton memoryManageBtn;
+	private JButton memorySelectorBtn;
 
 	private TableModelListener tableModelListener;
 
@@ -58,6 +61,7 @@ public class OSSimulator implements ActionListener
 		processScheduler.start();
 		cpu.addTableModelListener(tableModelListener);
 		memoryManager.start();
+		memorySelector = new MemorySelector(memoryManager.getManagerMode(), memoryManager);
 	}
 
 	private void initView()
@@ -84,6 +88,11 @@ public class OSSimulator implements ActionListener
 		memoryManageBtn.addActionListener(this);
 		memoryManageBtn.setPreferredSize(d);
 		oSSimulatorView.add(memoryManageBtn);
+
+		memorySelectorBtn = new JButton("内存算法选择器");
+		memorySelectorBtn.addActionListener(this);
+		memorySelectorBtn.setPreferredSize(d);
+		oSSimulatorView.add(memorySelectorBtn);
 	}
 
 	public static void main(String[] args)
@@ -107,5 +116,7 @@ public class OSSimulator implements ActionListener
 			processScheduler.setProcessSchedulerViewVisible(true);
 		if (btn == memoryManageBtn)
 			memoryManager.setMemoryManagerViewVisible(true);
+		if (btn == memorySelectorBtn)
+			memorySelector.setMemorySelectorViewVisible(true, memoryManager.getManagerMode());
 	}
 }

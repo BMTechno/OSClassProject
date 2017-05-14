@@ -10,10 +10,11 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 
+import com.bppleman.memory.MemorySelectorLinstener;
 import com.bppleman.processmanagement.process.ProcessSimulator;
 import com.bppleman.processmanagement.process.ProcessSimulator.STATE;
 
-public class MemoryManager extends Thread implements MouseListener
+public class MemoryManager extends Thread implements MouseListener, MemorySelectorLinstener
 {
 	// 内存表
 	private MemVector<MemNode> memVector;
@@ -50,6 +51,16 @@ public class MemoryManager extends Thread implements MouseListener
 		bindVector = new Vector<>();
 		// 管理界面初始化
 		initFrame();
+	}
+
+	public ManagerMode getManagerMode()
+	{
+		return managerMode;
+	}
+
+	public void setManagerMode(ManagerMode managerMode)
+	{
+		this.managerMode = managerMode;
 	}
 
 	public void initFrame()
@@ -658,5 +669,18 @@ public class MemoryManager extends Thread implements MouseListener
 	public void mouseExited(MouseEvent e)
 	{
 
+	}
+
+	/*
+	 * （非 Javadoc）
+	 * 
+	 * @see
+	 * com.bppleman.memory.MemorySelectorLinstener#didChangeTheMemoryButton(com.
+	 * zzl.MemoryManager.ManagerMode)
+	 */
+	@Override
+	public void didChangeTheMemoryButton(ManagerMode mode)
+	{
+		this.managerMode = mode;
 	}
 }

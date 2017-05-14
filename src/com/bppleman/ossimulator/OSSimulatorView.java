@@ -25,8 +25,8 @@ public class OSSimulatorView extends JFrame
 	{
 		screenWidth = tk.getScreenSize().getWidth();
 		screenHeight = tk.getScreenSize().getHeight();
-		int w = 800;
-		int h = 800;
+		int w = 400;
+		int h = 400;
 		setBounds((int) ((screenWidth - w) / 2), (int) ((screenHeight - h) / 2), w, h);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLayout(new FlowLayout());

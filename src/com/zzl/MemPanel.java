@@ -40,7 +40,6 @@ public class MemPanel extends JPanel
 			// 加入红、绿色块代表内存使用情况
 			if (memVector.get(i).isFlag() == false)
 			{
-				System.out.println(memVector.size());
 				Rectangle2D rectangle2d = new Rectangle2D.Double(0, getHeight() * begin, getWidth(), getHeight() * l);
 				memVector.get(i).setRect(rectangle2d);
 				g2D.setColor(new Color(187, 212, 105));
