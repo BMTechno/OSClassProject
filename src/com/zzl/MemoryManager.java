@@ -62,6 +62,8 @@ public class MemoryManager extends Thread implements MouseListener
 		frame.getContentPane().add(attributePanel, BorderLayout.EAST);
 		frame.setBounds(0, 0, 500, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 		frame.setMinimumSize(new Dimension(500, (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight()));
+		// 设置面板大小随frame变化
+		attributePanel.setPreferredSize(new Dimension(frame.getWidth() / 3, frame.getHeight()));
 	}
 
 	public void setMemoryManagerViewVisible(boolean b)

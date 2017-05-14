@@ -23,6 +23,7 @@ public class AttributePanel extends JPanel
 	public AttributePanel(JFrame frame)
 	{
 		this.frame = frame;
+		this.setLayout(null);
 		Lstart = new JLabel("起始地址:", SwingConstants.RIGHT);
 		Lproname = new JLabel("进程名:", SwingConstants.RIGHT);
 		Lsize = new JLabel("内存大小:", SwingConstants.RIGHT);
@@ -31,16 +32,6 @@ public class AttributePanel extends JPanel
 		proname = new JLabel();
 		size = new JLabel();
 		occupation = new JLabel();
-	}
-
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		// 清空面板
-		g.clearRect(0, 0, getWidth(), getHeight());
-		// 设置面板大小随frame变化
-		this.setPreferredSize(new Dimension(frame.getWidth() / 3, frame.getHeight()));
-		this.setLayout(null);
 		add(Lstart);
 		add(Lproname);
 		add(Lsize);
@@ -49,6 +40,16 @@ public class AttributePanel extends JPanel
 		add(proname);
 		add(size);
 		add(occupation);
+	}
+
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		// 设置面板大小随frame变化
+		this.setPreferredSize(new Dimension(frame.getWidth() / 3, frame.getHeight()));
+		// 清空面板
+		g.clearRect(0, 0, getWidth(), getHeight());
+
 		Lstart.setBounds(getWidth() / 4, getHeight() / 3, 60, 20);
 		Lproname.setBounds(getWidth() / 4, getHeight() / 3 + 20, 60, 20);
 		Lsize.setBounds(getWidth() / 4, getHeight() / 3 + 40, 60, 20);

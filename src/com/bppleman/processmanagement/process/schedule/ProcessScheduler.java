@@ -67,7 +67,6 @@ public class ProcessScheduler extends Thread
 							ProcessSimulator processSimulator = blockQueue.peek();
 							if (processSimulator.getNeedMemories() > memoryManager.getTotalMem())
 							{
-								System.out.println(processSimulator.getNeedExecutionTimes());
 								blockQueue.remove(processSimulator);
 								processSimulator.setCrash();
 								break;
@@ -104,7 +103,6 @@ public class ProcessScheduler extends Thread
 						{
 							try
 							{
-								System.out.println("挂起");
 								requestMemoryThread.wait();
 							}
 							catch (InterruptedException e)
